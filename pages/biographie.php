@@ -61,7 +61,8 @@ if (file_exists($jsonPath)) {
                 'nom' => $marabout['nom'],
                 'pere' => $marabout['pere'] ?? '',
                 'dates' => $dates,
-                'biographie' => $marabout['biographie'] ?? ''
+                'biographie' => $marabout['biographie'] ?? '',
+                'photo' => $marabout['photo'] ?? ''
             ])) ?>)">
                 <!-- Photo Top -->
                 <div class="w-full aspect-square bg-slate-100 dark:bg-slate-700 relative text-primary-900 dark:text-blue-400 font-bold text-4xl flex items-center justify-center overflow-hidden">
@@ -70,14 +71,13 @@ if (file_exists($jsonPath)) {
                     <?php else: ?>
                         <span class="opacity-50"><?= mb_strtoupper(mb_substr($marabout['nom'], 0, 1)) ?></span>
                     <?php endif; ?>
-                    <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-20"></div>
                 </div>
                 
-                <!-- Text Bottom (overlapping photo slightly) -->
-                <div class="p-3 text-center flex-1 flex flex-col justify-end relative z-30 -mt-12 mb-1">
-                    <p class="text-sm font-bold text-white leading-tight mb-0.5 drop-shadow-md"><?= e($marabout['nom']) ?></p>
+                <!-- Text Bottom -->
+                <div class="p-3 text-center flex-1 flex flex-col justify-center items-center bg-white dark:bg-slate-800">
+                    <p class="text-sm font-bold text-slate-900 dark:text-white leading-tight mb-0.5"><?= e($marabout['nom']) ?></p>
                     <?php if (!empty($marabout['pere'])): ?>
-                    <p class="text-[10px] text-slate-200 truncate drop-shadow-sm font-medium">Fils de <?= e($marabout['pere']) ?></p>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate w-full">Fils de <?= e($marabout['pere']) ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -100,6 +100,13 @@ if (file_exists($jsonPath)) {
             <button onclick="closeBioModal()" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full flex items-center justify-center shrink-0 transition-colors">✕</button>
         </div>
         
+        <!-- Conteneur Photo optionnel en haut -->
+        <div id="modal-bio-photo-container" class="px-6 pt-6 hidden">
+            <div class="relative w-full flex justify-center cursor-pointer active:scale-[0.98] transition-transform" onclick="openImageViewer()">
+                <img id="modal-bio-photo" src="" alt="Photo" class="w-auto h-auto max-w-full max-h-72 rounded-2xl shadow-sm object-contain">
+            </div>
+        </div>
+
         <div class="p-6 pt-5 flex-1 relative">
             <div class="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 leading-relaxed text-justify" id="modal-bio-texte">
             </div>
@@ -107,7 +114,17 @@ if (file_exists($jsonPath)) {
     </div>
 </div>
 
+<!-- IMAGE VIEWER PLEIN ECRAN -->
+<div id="image-viewer-modal" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/95 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeImageViewer()">
+    <button class="absolute top-4 right-4 sm:top-6 sm:right-6 w-12 h-12 bg-white/10 text-white rounded-full flex items-center justify-center z-[80] hover:bg-white/20 transition-colors backdrop-blur">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <img id="viewer-full-image" src="" class="max-w-full max-h-[90vh] object-contain transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+</div>
+
 <script>
+let currentPhotoUrl = '';
+
 function showBioModal(data) {
     const modal = document.getElementById('bio-modal');
     const content = document.getElementById('bio-modal-content');
@@ -128,7 +145,17 @@ function showBioModal(data) {
         datesEl.classList.add('hidden');
     }
     
-    // Format text with paragraphs
+    const photoContainer = document.getElementById('modal-bio-photo-container');
+    const photoImg = document.getElementById('modal-bio-photo');
+    if (data.photo) {
+        currentPhotoUrl = '/assets/uploads/' + data.photo;
+        photoImg.src = currentPhotoUrl;
+        photoContainer.classList.remove('hidden');
+    } else {
+        currentPhotoUrl = '';
+        photoContainer.classList.add('hidden');
+    }
+
     const bioText = data.biographie ? data.biographie.split('\n').filter(p => p.trim()).map(p => `<p class="mb-4">${p}</p>`).join('') : '<p class="italic opacity-50">Aucune biographie disponible pour le moment.</p>';
     document.getElementById('modal-bio-texte').innerHTML = bioText;
     
@@ -149,6 +176,28 @@ function closeBioModal() {
     setTimeout(() => {
         modal.classList.add('opacity-0', 'pointer-events-none');
     }, 300);
+}
+
+function openImageViewer() {
+    if (!currentPhotoUrl) return;
+    const modal = document.getElementById('image-viewer-modal');
+    const img = document.getElementById('viewer-full-image');
+    img.src = currentPhotoUrl;
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => {
+        img.classList.remove('scale-95');
+        img.classList.add('scale-100');
+    }, 10);
+}
+
+function closeImageViewer() {
+    const modal = document.getElementById('image-viewer-modal');
+    const img = document.getElementById('viewer-full-image');
+    img.classList.remove('scale-100');
+    img.classList.add('scale-95');
+    setTimeout(() => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+    }, 150);
 }
 </script>
 

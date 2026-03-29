@@ -47,11 +47,12 @@ $produits = $stmt->fetchAll();
             </div>
         </div>
         <!-- Panier avec badge -->
-        <a href="/pages/panier.php" class="relative w-9 h-9 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-600 dark:text-slate-300" viewBox="0 0 24 24">
+        <a href="/pages/panier.php" class="relative flex flex-col items-center justify-center w-12 text-slate-600 dark:text-slate-300 active:scale-95 transition-transform" title="Mon Panier">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
-            <span id="cart-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full items-center justify-center hidden flex">0</span>
+            <span id="cart-badge" class="absolute top-0 right-1 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full items-center justify-center hidden flex">0</span>
+            <span class="text-[8px] font-bold mt-1 uppercase tracking-tight">Panier</span>
         </a>
     </div>
 </div>

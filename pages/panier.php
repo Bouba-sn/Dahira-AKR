@@ -10,7 +10,11 @@ require_once __DIR__ . '/../includes/header.php';
         <a href="/pages/tidiany-way.php" class="w-8 h-8 flex items-center justify-center text-slate-600 dark:text-slate-300">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
         </a>
-        <h1 class="font-bold text-slate-900 dark:text-white">Mon panier 🛒</h1>
+        <h1 class="font-bold text-slate-900 dark:text-white flex-1">Mon panier 🛒</h1>
+        <a href="/pages/mes_commandes.php" class="flex flex-col items-center justify-center w-12 text-slate-600 dark:text-slate-300 active:scale-95 transition-transform" title="Mes Commandes">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>
+            <span class="text-[8px] font-bold mt-1 uppercase tracking-tight">Historique</span>
+        </a>
     </div>
 </div>
 
@@ -46,7 +50,7 @@ require_once __DIR__ . '/../includes/header.php';
 </main>
 
 <!-- BOUTON COMMANDER -->
-<div id="checkout-bar" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 px-4 pb-safe bg-white/95 dark:bg-slate-900/95 backdrop-blur border-t border-slate-200 dark:border-slate-800 pt-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]" style="display:none; padding-bottom: calc(1rem + env(safe-area-inset-bottom));">
+<div id="checkout-bar" class="fixed bottom-[4.5rem] left-1/2 -translate-x-1/2 w-full max-w-[430px] z-40 px-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-t border-slate-200 dark:border-slate-800 py-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]" style="display:none; margin-bottom: env(safe-area-inset-bottom);">
     <div class="flex justify-between items-center mb-3 px-1">
         <span class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">🛒 Panier</span>
         <span id="checkout-total" class="font-bold text-lg text-primary-900 dark:text-blue-400">0 FCFA</span>

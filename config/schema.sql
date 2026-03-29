@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS commandes (
     statut ENUM('en_attente','confirmee','expediee','livree','annulee') DEFAULT 'en_attente',
     mode_paiement ENUM('livraison','wave','orange_money') DEFAULT 'livraison',
     adresse_livraison TEXT,
+    telephone_client VARCHAR(20) DEFAULT NULL,
     date_commande TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

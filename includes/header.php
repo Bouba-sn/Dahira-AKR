@@ -155,7 +155,7 @@ $bodyClass = $darkMode ? 'dark' : '';
         }
     </script>
 </head>
-<body class="<?= $bodyClass ?>">
+<body class="">
 <div id="app">
 
 <!-- Toast global -->

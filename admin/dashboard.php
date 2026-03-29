@@ -11,7 +11,6 @@ $stats = [
     'utilisateurs' => $pdo->query("SELECT COUNT(*) FROM utilisateurs")->fetchColumn(),
     'commandes'    => $pdo->query("SELECT COUNT(*) FROM commandes")->fetchColumn(),
     'produits'     => $pdo->query("SELECT COUNT(*) FROM produits WHERE actif=1")->fetchColumn(),
-    'ecrits'       => $pdo->query("SELECT COUNT(*) FROM ecrits")->fetchColumn(),
     'revenue'      => $pdo->query("SELECT COALESCE(SUM(total),0) FROM commandes WHERE statut != 'annulee'")->fetchColumn(),
     'en_attente'   => $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en_attente'")->fetchColumn(),
     'adh_attente'  => $pdo->query("SELECT COUNT(*) FROM utilisateurs WHERE statut_adhesion='en_attente'")->fetchColumn(),
@@ -54,8 +53,7 @@ $commandes = $pdo->query("SELECT c.*, u.nom as client FROM commandes c JOIN util
         $statCards = [
             ['👥', 'Membres', $stats['utilisateurs'], 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'],
             ['📦', 'Commandes', $stats['commandes'], 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'],
-            ['🛍️', 'Produits', $stats['produits'], 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'],
-            ['📚', 'Écrits', $stats['ecrits'], 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'],
+            ['🛍️', 'Produits', $stats['produits'], 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400']
         ];
         foreach ($statCards as [$icon, $label, $val, $cls]):
         ?>

@@ -14,14 +14,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Token invalide. Veuillez réessayer.';
     } else {
         $adresse     = sanitize($_POST['adresse'] ?? '');
-        $paiement    = sanitize($_POST['mode_paiement'] ?? 'livraison');
+        $telephone   = sanitize($_POST['telephone'] ?? '');
+        $paiement    = sanitize($_POST['mode_paiement'] ?? 'wave');
         $cartJson    = $_POST['cart_data'] ?? '[]';
         $cartItems   = json_decode($cartJson, true);
 
         if (empty($cartItems)) {
             $error = 'Votre panier est vide.';
-        } elseif (empty($adresse)) {
-            $error = 'Veuillez saisir votre adresse de livraison.';
+        } elseif (empty($adresse) || empty($telephone)) {
+            $error = 'Veuillez saisir votre adresse de livraison et votre numéro de téléphone.';
         } else {
             $pdo = db();
             $total = array_sum(array_map(fn($i) => $i['prix'] * $i['qty'], $cartItems));
@@ -30,8 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->beginTransaction();
 
                 // Créer la commande
-                $stmt = $pdo->prepare("INSERT INTO commandes (user_id, total, statut, mode_paiement, adresse_livraison) VALUES (?, ?, 'en_attente', ?, ?)");
-                $stmt->execute([$user['id'], $total, $paiement, $adresse]);
+                $stmt = $pdo->prepare("INSERT INTO commandes (user_id, total, statut, mode_paiement, adresse_livraison, telephone_client) VALUES (?, ?, 'en_attente', ?, ?, ?)");
+                $stmt->execute([$user['id'], $total, $paiement, $adresse, $telephone]);
                 $commandeId = $pdo->lastInsertId();
 
                 // Ajouter les détails
@@ -74,15 +75,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Commande confirmée ! 🎉</h2>
     <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Commande N° <strong><?= $orderId ?></strong></p>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Nous vous contacterons bientôt pour la livraison.</p>
-    <a href="/pages/accueil.php" id="clear-cart-go-home" class="inline-block bg-primary-900 text-white px-6 py-2.5 rounded-xl text-sm font-medium">
-        Retour à l'accueil
-    </a>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Redirection vers le suivi de votre commande...</p>
+    <div class="inline-block w-6 h-6 border-2 border-primary-900 border-t-transparent rounded-full animate-spin"></div>
 </div>
 <script>
-// Vider le panier après commande réussie
-Cart.clear();
-document.getElementById('clear-cart-go-home').addEventListener('click', () => Cart.clear());
+// Attendre que footer.php charge l'objet Cart
+document.addEventListener('DOMContentLoaded', () => {
+    Cart.clear();
+    setTimeout(() => {
+        window.location.href = '/pages/mes_commandes.php';
+    }, 2000);
+});
 </script>
 
 <?php else: ?>
@@ -106,45 +109,48 @@ document.getElementById('clear-cart-go-home').addEventListener('click', () => Ca
         </div>
     </div>
 
-    <!-- ADRESSE -->
-    <div class="mb-4">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-200 block mb-2">📍 Adresse de livraison</label>
-        <textarea name="adresse" required rows="3" placeholder="Votre adresse complète (rue, quartier, ville...)"
-            class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-primary-500 resize-none"></textarea>
+    <!-- ADRESSE & TÉLÉPHONE -->
+    <div class="mb-4 space-y-3">
+        <div>
+            <label class="text-sm font-semibold text-slate-700 dark:text-slate-200 block mb-2">📍 Adresse de livraison *</label>
+            <textarea name="adresse" required rows="2" placeholder="Votre adresse complète (rue, quartier, ville...)"
+                class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-primary-500 resize-none"></textarea>
+        </div>
+        <div>
+            <label class="text-sm font-semibold text-slate-700 dark:text-slate-200 block mb-2">📱 Numéro de téléphone *</label>
+            <input type="tel" name="telephone" required placeholder="Ex: 77 123 45 67" value="<?= e($user['telephone'] ?? '') ?>"
+                class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-primary-500">
+        </div>
     </div>
 
     <!-- MODE PAIEMENT -->
     <div class="mb-5 relative">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-200 block mb-2">💳 Mode de paiement</label>
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-200 block mb-2">💳 Mode de paiement *</label>
         <div class="space-y-2">
             <label class="flex items-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 cursor-pointer">
-                <input type="radio" name="mode_paiement" value="livraison" checked class="accent-primary-900" onchange="togglePaymentInfo(this.value)">
-                <span class="text-sm text-slate-700 dark:text-slate-200">🚚 Paiement à la livraison</span>
-            </label>
-            <label class="flex items-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 cursor-pointer">
-                <input type="radio" name="mode_paiement" value="wave" class="accent-primary-900" onchange="togglePaymentInfo(this.value)">
-                <span class="text-sm text-slate-700 dark:text-slate-200">📱 Wave</span>
+                <input type="radio" name="mode_paiement" value="wave" checked class="accent-primary-900" onchange="togglePaymentInfo(this.value)">
+                <span class="text-sm text-slate-700 dark:text-slate-200 flex items-center gap-2">📱 Wave</span>
             </label>
             <label class="flex items-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 cursor-pointer">
                 <input type="radio" name="mode_paiement" value="orange_money" class="accent-primary-900" onchange="togglePaymentInfo(this.value)">
-                <span class="text-sm text-slate-700 dark:text-slate-200">🟠 Orange Money</span>
+                <span class="text-sm text-slate-700 dark:text-slate-200 flex items-center gap-2">🟠 Orange Money</span>
             </label>
         </div>
 
         <!-- INFO PAIEMENT DYNAMIQUE -->
-        <div id="payment-info" class="mt-3 bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hidden fade-in-up">
-            <p class="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Transférez le montant au :</p>
+        <div id="payment-info" class="mt-3 bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 fade-in-up">
+            <p class="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Veuillez transférer le montant au :</p>
             <div class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 mb-2">
                 <div>
                     <p class="font-mono font-bold text-lg text-slate-800 dark:text-slate-100 tracking-wider" id="payment-number">77 000 00 00</p>
-                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase" id="payment-name">Nom du Destinataire</p>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase" id="payment-name">Caisse Dahira</p>
                 </div>
                 <button type="button" onclick="copyPaymentNumber()" class="bg-primary-50 text-primary-900 hover:bg-primary-100 dark:bg-slate-800 dark:text-blue-400 border border-primary-200 dark:border-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 active:scale-95 shadow-sm">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                     Copier
                 </button>
             </div>
-            <p class="text-[10px] text-slate-400 italic">Prenez le temps d'effectuer le transfert, puis validez la commande.</p>
+            <p class="text-[10px] text-slate-400 leading-tight">Envoyez l'argent via le mode sélectionné depuis le numéro entré ci-dessus. L'administrateur confirmera votre commande sous peu (Livraison de 2-5 jours).</p>
         </div>
     </div>
 
@@ -152,6 +158,9 @@ document.getElementById('clear-cart-go-home').addEventListener('click', () => Ca
         Confirmer la commande
     </button>
     <a href="/pages/panier.php" class="block text-center text-sm text-slate-400 dark:text-slate-500">Retour au panier</a>
+
+    <!-- Spacer massif pour le bas de page -->
+    <div style="height: 120px; width: 100%; display: block;"></div>
 </form>
 
 <script>
@@ -190,11 +199,11 @@ function togglePaymentInfo(val) {
     };
 
     if (val === 'wave' || val === 'orange_money') {
-        info.classList.remove('hidden');
+        info.style.display = 'block';
         num.textContent = accounts[val].num;
         name.textContent = accounts[val].name;
     } else {
-        info.classList.add('hidden');
+        info.style.display = 'none';
     }
 }
 

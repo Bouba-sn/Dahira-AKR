@@ -63,9 +63,11 @@ $statutLabels = ['en_attente'=>'En attente','confirmee'=>'Confirmée','expediee'
         <!-- Header commande -->
         <div class="px-4 py-3 flex items-center justify-between border-b border-slate-100 dark:border-slate-700">
             <div>
-                <p class="text-xs text-slate-400">Commande #<?= $c['id'] ?></p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Commande #<?= $c['id'] ?></p>
                 <p class="text-sm font-semibold text-slate-800 dark:text-slate-100"><?= e($c['client']) ?></p>
-                <p class="text-xs text-slate-400"><?= e($c['email']) ?></p>
+                <?php if ($c['telephone_client']): ?>
+                <p class="text-xs font-mono font-bold text-slate-600 mt-0.5 bg-slate-100 dark:bg-slate-700 inline-block px-1.5 rounded">📞 <?= e($c['telephone_client']) ?></p>
+                <?php endif; ?>
             </div>
             <div class="text-right">
                 <p class="text-base font-bold text-primary-900 dark:text-blue-400"><?= number_format($c['total'], 0, ',', ' ') ?> F</p>
@@ -78,16 +80,30 @@ $statutLabels = ['en_attente'=>'En attente','confirmee'=>'Confirmée','expediee'
         <div class="px-4 py-2 text-xs text-slate-400">
             <span>📅 <?= date('d/m/Y H:i', strtotime($c['date_commande'])) ?></span>
             <span class="mx-2">·</span>
-            <span>💳 <?= ['livraison'=>'Livraison','wave'=>'Wave','orange_money'=>'Orange Money'][$c['mode_paiement']] ?? $c['mode_paiement'] ?></span>
+            <span class="font-semibold <?= in_array($c['mode_paiement'], ['wave', 'orange_money']) ? 'text-orange-500' : '' ?>">💳 <?= ['livraison'=>'Livraison','wave'=>'Wave','orange_money'=>'Orange Money'][$c['mode_paiement']] ?? $c['mode_paiement'] ?></span>
         </div>
         <?php if ($c['adresse_livraison']): ?>
         <div class="px-4 pb-2 text-xs text-slate-500 dark:text-slate-400">
             📍 <?= e($c['adresse_livraison']) ?>
         </div>
         <?php endif; ?>
+        
         <!-- Action statut -->
-        <div class="px-4 pb-3">
-            <form method="POST" class="flex items-center gap-2">
+        <div class="px-4 pb-3 flex flex-col gap-2">
+            <?php if ($c['statut'] === 'en_attente' && in_array($c['mode_paiement'], ['wave', 'orange_money'])): ?>
+            <!-- Bouton Validation Rapide pour les paiements mobile -->
+            <form method="POST">
+                <?= csrfField() ?>
+                <input type="hidden" name="commande_id" value="<?= $c['id'] ?>">
+                <input type="hidden" name="statut" value="confirmee">
+                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-colors" onclick="return confirm('Avez-vous bien reçu le paiement sur ce numéro ?')">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                    Confirmer la réception de l'argent
+                </button>
+            </form>
+            <?php endif; ?>
+
+            <form method="POST" class="flex items-center gap-2 mt-1">
                 <?= csrfField() ?>
                 <input type="hidden" name="commande_id" value="<?= $c['id'] ?>">
                 <select name="statut" class="flex-1 border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none">
@@ -95,8 +111,8 @@ $statutLabels = ['en_attente'=>'En attente','confirmee'=>'Confirmée','expediee'
                     <option value="<?= $v ?>" <?= $c['statut'] === $v ? 'selected' : '' ?>><?= $l ?></option>
                     <?php endforeach; ?>
                 </select>
-                <button type="submit" class="bg-primary-900 text-white px-3 py-1.5 rounded-xl text-xs font-medium">
-                    Mettre à jour
+                <button type="submit" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl text-xs font-medium">
+                    Modifier
                 </button>
             </form>
         </div>

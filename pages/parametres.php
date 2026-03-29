@@ -33,10 +33,24 @@ $darkMode = isset($_COOKIE['dark_mode']) && $_COOKIE['dark_mode'] === '1';
     <!-- SECTIONS -->
     <div class="px-4 mt-5 space-y-3">
 
+        <!-- Mes Commandes -->
+        <a href="/pages/mes_commandes.php" class="block bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden active:scale-[0.98] transition-transform">
+            <div class="px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">📦</span>
+                    <div class="text-left">
+                        <p class="text-sm font-medium text-slate-800 dark:text-slate-100">Mes Commandes</p>
+                        <p class="text-[10px] text-slate-400">Suivi et historique</p>
+                    </div>
+                </div>
+                <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+        </a>
+
         <!-- Apparence -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden">
             <div class="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700">
-                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Apparence</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Apparence</p>
             </div>
             <div class="px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-3">

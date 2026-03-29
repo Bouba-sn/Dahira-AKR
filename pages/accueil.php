@@ -22,14 +22,12 @@ $dahira = $pdo->query("SELECT * FROM evenements WHERE type='dahira_samedi' AND d
 <!-- TOP BAR -->
 <div class="sticky top-0 z-40 bg-primary-900 text-white px-4 pt-safe-top">
     <div class="flex items-center justify-between h-14">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+        <!-- Logo + Titre (Gauche) -->
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden shrink-0">
                 <img src="/assets/uploads/1.png" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/assets/uploads/1.jpg'">
             </div>
-            <div>
-                <p class="text-xs opacity-70 leading-none">بسم الله</p>
-                <p class="text-sm font-semibold leading-tight">Dahira AKR</p>
-            </div>
+            <p class="text-[17px] font-bold tracking-wide text-white">Dahira AKR</p>
         </div>
         <div class="flex items-center gap-2">
             <!-- Dark mode -->
@@ -64,39 +62,39 @@ $dahira = $pdo->query("SELECT * FROM evenements WHERE type='dahira_samedi' AND d
     </div>
 </div>
 
-<main class="page-content">
+<main class="page-content bg-slate-50 dark:bg-slate-950">
 
     <!-- HERO SECTION -->
-    <div class="relative overflow-hidden bg-gradient-to-b from-primary-900 via-primary-800 to-primary-700 text-white px-4 pb-8 pt-4">
+    <div class="relative overflow-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 pb-8 pt-6 border-b border-slate-100 dark:border-slate-800">
         <!-- Motif décoratif -->
-        <div class="absolute inset-0 opacity-5">
+        <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
             <div class="absolute top-4 right-4 text-9xl arabic">بِسْمِ اللّهِ</div>
         </div>
 
         <div class="relative text-center w-full">
             <!-- 1 photo statique -->
-            <div id="hero-image" class="w-40 h-40 mx-auto mb-3 flex items-center justify-center shadow-2xl overflow-hidden z-10 relative rounded-2xl border border-white/20">
+            <div id="hero-image" class="w-40 h-40 mx-auto mb-4 flex items-center justify-center shadow-xl overflow-hidden z-10 relative rounded-2xl border border-slate-200 dark:border-slate-700">
                 <img src="/assets/uploads/6.png" alt="Hero" class="w-full h-full object-cover">
             </div>
             
-            <h1 class="text-xl font-bold leading-tight mb-1">Dahira A Khiba-i</h1>
-            <h2 class="text-base font-light opacity-90 mb-1">Rassouloulahi</h2>
-            <p class="text-xs opacity-60 arabic text-center mb-6">الطريقة التجانية</p>
+            <h1 class="text-xl font-bold leading-tight mb-1 text-primary-900 dark:text-white">Dahira A Khiba-i</h1>
+            <h2 class="text-base font-medium text-slate-600 dark:text-slate-300 mb-1">Rassouloulahi</h2>
+            <p class="text-xs text-slate-400 arabic text-center mb-6">صلى الله عليه وسلم </p>
 
             <div class="space-y-4 max-w-sm mx-auto">
-                <!-- DAHIRA DU SAMEDI (sur le bleu) -->
+                <!-- DAHIRA DU SAMEDI -->
                 <?php if ($dahira): ?>
-                <div class="bg-white/10 backdrop-blur-md text-white rounded-2xl p-4 border border-white/20 cursor-pointer shadow-lg active:scale-95 transition-transform text-left flex items-start gap-4" onclick="showEventModal(<?= htmlspecialchars(json_encode(['titre' => $dahira['nom_complet'], 'date' => date('d/m/Y H:i', strtotime($dahira['date_evenement'])), 'adresse' => $dahira['adresse'] ?? '', 'description' => $dahira['description'] ?? '', 'image' => $dahira['image'] ?? ''])) ?>)">
-                    <div class="w-12 h-12 rounded-xl bg-gold-500 text-primary-900 flex flex-col items-center justify-center flex-shrink-0 font-bold leading-none">
+                <div class="bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl p-4 border border-slate-200 dark:border-slate-700 cursor-pointer shadow-sm active:scale-95 transition-transform text-left flex items-start gap-4" onclick="showEventModal(<?= htmlspecialchars(json_encode(['titre' => $dahira['nom_complet'], 'date' => date('d/m/Y H:i', strtotime($dahira['date_evenement'])), 'adresse' => $dahira['adresse'] ?? '', 'description' => $dahira['description'] ?? '', 'image' => $dahira['image'] ?? ''])) ?>)">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/50 text-primary-900 dark:text-blue-300 flex flex-col items-center justify-center flex-shrink-0 font-bold leading-none">
                         <span class="text-lg"><?= date('d', strtotime($dahira['date_evenement'])) ?></span>
                         <span class="text-[10px] uppercase font-semibold"><?= date('M', strtotime($dahira['date_evenement'])) ?></span>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-0.5">
-                            <span class="text-[10px] bg-gold-500/20 text-gold-200 font-bold px-2 py-0.5 rounded-full border border-gold-500/30">Dahira du Samedi</span>
+                            <span class="text-[10px] bg-primary-50 dark:bg-slate-700 text-primary-700 dark:text-blue-300 font-bold px-2 py-0.5 rounded-full border border-primary-100 dark:border-slate-600">Dahira du Samedi</span>
                         </div>
                         <p class="font-semibold text-sm truncate"><?= e($dahira['nom_complet']) ?></p>
-                        <p class="text-[11px] opacity-80 truncate mt-0.5 flex items-center gap-1">
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 flex items-center gap-1">
                             <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                             <?= e($dahira['adresse'] ?? 'Lieu non défini') ?>
                         </p>
@@ -108,12 +106,14 @@ $dahira = $pdo->query("SELECT * FROM evenements WHERE type='dahira_samedi' AND d
                 <?php 
                 $usrAdh = isset($usrAdhesion) ? $usrAdhesion : 'non_membre';
                 if (!isLoggedIn() || $usrAdh === 'non_membre'): ?>
-                <button onclick="openAdhesionModal()" class="w-full bg-gold-400 hover:bg-gold-500 text-primary-900 font-bold py-3.5 rounded-xl shadow-xl transition-colors text-sm flex items-center justify-center gap-2">
-                    <span>👋</span> Adhérer au Dahira
+                <button onclick="openAdhesionModal()" class="relative w-full max-w-[280px] mx-auto bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] hover:from-[#F3E5AB] hover:to-[#D4AF37] text-primary-900 font-bold py-2.5 rounded-xl shadow-md shadow-yellow-600/20 active:translate-y-0.5 active:border-b-0 transition-all text-sm border-b-[3px] border-[#B8860B] flex items-center justify-center gap-2 overflow-hidden group">
+                    <div class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <span class="text-lg group-hover:scale-110 transition-transform duration-300"></span> 
+                    <span class="tracking-wide drop-shadow-sm">Adhérer au Dahira</span>
                 </button>
                 <?php elseif ($usrAdh === 'en_attente'): ?>
-                <div class="w-full bg-white/10 border border-white/20 text-white font-medium py-3 rounded-xl text-sm flex items-center justify-center gap-2 backdrop-blur-sm">
-                    <span>⏳</span> Adhésion en attente de confirmation...
+                <div class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium py-3 rounded-xl text-sm flex items-center justify-center gap-2">
+                    <span class="animate-spin w-4 h-4 border-2 border-primary-900 border-t-transparent rounded-full flex-shrink-0"></span> Adhésion en attente...
                 </div>
                 <?php endif; // Si membre, on cache le bouton ?>
             </div>
@@ -363,7 +363,7 @@ function copyToClipboard(text, btn) {
                 <p class="text-xs text-amber-800 dark:text-amber-200 font-bold mb-1">Frais d'adhésion : 2000 FCFA</p>
                 <p class="text-[11px] text-amber-700 dark:text-amber-300/80 mb-2 leading-tight">Veuillez envoyer ce montant par Wave ou Orange Money au numéro suivant pour confirmer votre adhésion :</p>
                 <div class="flex items-center gap-2">
-                    <span class="font-bold text-sm text-slate-900 dark:text-white" id="numero-adhesion">77 000 00 00</span>
+                    <span class="font-bold text-sm text-slate-900 dark:text-white" id="numero-adhesion">78 019 66 50</span>
                     <button type="button" onclick="copyToClipboard('7700000000', this)" class="text-[10px] font-bold uppercase tracking-wide bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 px-2.5 py-1.5 rounded-lg active:scale-95 transition-transform">Copier</button>
                 </div>
             </div>

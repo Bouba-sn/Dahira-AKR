@@ -45,8 +45,8 @@ require_once __DIR__ . '/../includes/header.php';
 <main class="min-h-screen bg-gradient-to-b from-primary-900 via-primary-800 to-primary-700 flex flex-col">
     <!-- Logo -->
     <div class="flex flex-col items-center pt-12 pb-6 px-4">
-        <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-3">
-            <span class="text-3xl">🕌</span>
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden mb-3">
+            <img src="/assets/uploads/1.png" alt="Logo" class="w-full h-full object-contain mix-blend-screen" onerror="this.onerror=null; this.src='/assets/uploads/1.jpg'">
         </div>
         <h1 class="text-white text-lg font-bold">Dahira AKR</h1>
         <p class="text-white/60 text-xs mt-1">بسم الله الرحمن الرحيم</p>

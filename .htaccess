@@ -1,0 +1,56 @@
+# Dahira AKR - Apache Configuration
+Options -Indexes
+
+# Sécurité des fichiers sensibles
+<Files "*.php">
+    # Autoriser par défaut
+</Files>
+
+<FilesMatch "^(database\.php|\.env|schema\.sql)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Protéger le répertoire config
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Redirection HTTPS (décommenter en production)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Bloquer l'accès direct au config/
+    RewriteRule ^config/ - [F,L]
+
+    # Page d'accueil
+    RewriteRule ^$ pages/accueil.php [L]
+
+    # Nettoyer les URL (optionnel)
+    # RewriteCond %{REQUEST_FILENAME} !-f
+    # RewriteCond %{REQUEST_FILENAME} !-d
+    # RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]
+</IfModule>
+
+# Headers de sécurité
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Cache statique assets
+    <FilesMatch "\.(ico|css|js|gif|jpe?g|png|svg|woff2?)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+</IfModule>
+
+# Compression gzip
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript text/plain application/json
+</IfModule>
+
+# Types MIME
+AddType application/manifest+json .json
+AddType text/cache-manifest .appcache
+AddType image/webp .webp

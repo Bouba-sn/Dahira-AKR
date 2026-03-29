@@ -1,0 +1,122 @@
+{
+    "famille": [
+        {
+            "nom": "El Hadj Omar Tall",
+            "pere": "Thierno Saïdou Tall",
+            "annee_naissance": 1794,
+            "annee_mort": 1864,
+            "biographie": "Grand érudit musulman, chef religieux et fondateur de l’empire toucouleur en Afrique de l’Ouest. Né au Fouta Toro, il a effectué le pèlerinage à La Mecque où il fut initié à la Tijaniyya et nommé représentant de la confrérie pour l’Afrique de l’Ouest. À son retour, il mena une grande réforme religieuse et politique à travers un jihad qui lui permit d’établir un vaste empire couvrant le Sénégal, le Mali et la Guinée. Il est considéré comme l’un des plus grands propagateurs de l’islam et de la Tijaniyya dans la région."
+        },
+        {
+            "nom": "Cheikh Ibrahim Niasse",
+            "pere": "Abdoulaye Niasse",
+            "annee_naissance": 1900,
+            "annee_mort": 1975,
+            "biographie": "Grande figure de la Tijaniyya au XXe siècle, Cheikh Ibrahim Niasse est né au Sénégal et est le fils d’Abdoulaye Niasse. Il a fondé la communauté de Médina Baye à Kaolack, devenue un centre spirituel international. Il est connu pour avoir développé la branche niassène de la Tijaniyya et pour avoir attiré des millions de disciples en Afrique et dans le monde. Son influence s’étend notamment au Nigeria, au Ghana et dans plusieurs autres pays."
+        },
+        {
+            "nom": "El Hadj Malick Sy",
+            "pere": "Thierno Ousmane Sy",
+            "generation": 1,
+            "annee_naissance": 1855,
+            "annee_mort": 1922,
+            "biographie": "Grand érudit musulman sénégalais et figure majeure de la Tijaniyya. Il a fait de Tivaouane un centre religieux majeur."
+        },
+        {
+            "nom": "Sidy Ahmed Sy",
+            "pere": "El Hadj Malick Sy",
+            "generation": 2,
+            "annee_naissance": 1881,
+            "annee_mort": 1916,
+            "biographie": "Fils aîné de Malick Sy, connu pour sa grande piété et sa proximité spirituelle avec son père."
+        },
+        {
+            "nom": "Serigne Babacar Sy",
+            "pere": "El Hadj Malick Sy",
+            "generation": 2,
+            "annee_naissance": 1885,
+            "annee_mort": 1957,
+            "biographie": "Premier khalife général des Tidianes après Malick Sy, il a consolidé la confrérie."
+        },
+        {
+            "nom": "El Hadj Mouhamadou Mansour Sy",
+            "pere": "El Hadj Malick Sy",
+            "generation": 2,
+            "annee_naissance": 1900,
+            "annee_mort": 1957,
+            "biographie": "Fils de Malick Sy, acteur majeur dans l’enseignement islamique."
+        },
+        {
+            "nom": "El Hadj Abdoul Aziz Sy Dabakh",
+            "pere": "El Hadj Malick Sy",
+            "generation": 2,
+            "annee_naissance": 1904,
+            "annee_mort": 1997,
+            "biographie": "Grand khalife des Tidianes, reconnu pour son érudition et son influence internationale."
+        },
+        {
+            "nom": "Cheikh Ahmed Tidiane Sy Al Makhtoum",
+            "pere": "Serigne Babacar Sy",
+            "generation": 3,
+            "annee_naissance": 1925,
+            "annee_mort": 2017,
+            "biographie": "Grand intellectuel et guide religieux, il a fortement contribué au rayonnement international de la Tijaniyya."
+        },
+        {
+            "nom": "Serigne Abdoul Aziz Sy Al Amine",
+            "pere": "Serigne Babacar Sy",
+            "generation": 3,
+            "annee_naissance": 1928,
+            "annee_mort": 2017,
+            "biographie": "Khalife général des Tidianes, connu pour son engagement pour la paix et l’unité."
+        },
+        {
+            "nom": "Serigne Mansour Sy",
+            "pere": "Serigne Babacar Sy",
+            "generation": 3,
+            "annee_naissance": 1936,
+            "annee_mort": null,
+            "biographie": "Khalife général des Tidianes, figure majeure actuelle de la confrérie."
+        },
+        {
+            "nom": "Serigne Pape Malick Sy",
+            "pere": "Serigne Babacar Sy",
+            "generation": 3,
+            "annee_naissance": 1941,
+            "annee_mort": 2020,
+            "biographie": "Porte-parole emblématique de la famille tidiane."
+        },
+        {
+            "nom": "Serigne Moustapha Sy",
+            "pere": "Serigne Babacar Sy",
+            "generation": 3,
+            "annee_naissance": 1953,
+            "annee_mort": null,
+            "biographie": "Guide religieux influent et leader du mouvement moustarchidine."
+        },
+        {
+            "nom": "Serigne Babacar Sy Mansour",
+            "pere": "El Hadj Mouhamadou Mansour Sy",
+            "generation": 3,
+            "annee_naissance": 1931,
+            "annee_mort": null,
+            "biographie": "Petit-fils de Malick Sy et khalife général des Tidianes."
+        },
+        {
+            "nom": "Serigne Cheikh Sy",
+            "pere": "El Hadj Abdoul Aziz Sy Dabakh",
+            "generation": 3,
+            "annee_naissance": null,
+            "annee_mort": null,
+            "biographie": "Descendant de Dabakh, impliqué dans la transmission religieuse."
+        },
+        {
+            "nom": "Serigne Mbaye Sy",
+            "pere": "El Hadj Abdoul Aziz Sy Dabakh",
+            "generation": 3,
+            "annee_naissance": null,
+            "annee_mort": null,
+            "biographie": "Membre influent de la famille, engagé dans les activités religieuses."
+        }
+    ]
+}

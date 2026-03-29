@@ -91,7 +91,7 @@ $bodyClass = $darkMode ? 'dark' : '';
         .arabic { font-family: 'Amiri', serif; direction: rtl; text-align: right; }
 
         /* Bottom nav padding */
-        .page-content { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
+        .page-content { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)) !important; }
 
         /* Animations */
         @keyframes fadeInUp {

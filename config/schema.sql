@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('admin','user') DEFAULT 'user',
+    statut_adhesion ENUM('non_membre','en_attente','membre') DEFAULT 'non_membre',
+    telephone VARCHAR(20) DEFAULT NULL,
+    adresse TEXT DEFAULT NULL,
     avatar VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;

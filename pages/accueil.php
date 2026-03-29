@@ -44,9 +44,18 @@ $dahira = $pdo->query("SELECT * FROM evenements WHERE type='dahira_samedi' AND d
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                 </svg>
             </button>
-            <?php if (isLoggedIn()): ?>
-            <a href="/admin/dashboard.php" class="w-8 h-8 rounded-full bg-gold-500 flex items-center justify-center text-primary-900 font-bold text-xs">
+            <?php if (isLoggedIn()): 
+                $uStmt = $pdo->prepare("SELECT statut_adhesion FROM utilisateurs WHERE id=?");
+                $uStmt->execute([$_SESSION['user_id']]);
+                $usrAdhesion = $uStmt->fetchColumn() ?: 'non_membre';
+            ?>
+            <a href="<?= isAdmin() ? '/admin/dashboard.php' : '/pages/parametres.php' ?>" class="relative w-8 h-8 rounded-full bg-gold-500 flex items-center justify-center text-primary-900 font-bold text-xs ring-2 ring-white/20">
                 <?= strtoupper(substr($_SESSION['user_nom'] ?? 'U', 0, 1)) ?>
+                <?php if ($usrAdhesion === 'membre'): ?>
+                <span class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-primary-900 flex items-center justify-center" title="Membre certifié">
+                    <svg class="w-2 h-2 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="m5 13 4 4L19 7"/></svg>
+                </span>
+                <?php endif; ?>
             </a>
             <?php else: ?>
             <a href="/public/login.php" class="text-xs bg-white/20 px-3 py-1 rounded-full font-medium">Connexion</a>
@@ -64,21 +73,49 @@ $dahira = $pdo->query("SELECT * FROM evenements WHERE type='dahira_samedi' AND d
             <div class="absolute top-4 right-4 text-9xl arabic">بِسْمِ اللّهِ</div>
         </div>
 
-        <div class="relative text-center">
-            <!-- Slider 3 photos -->
-            <div id="hero-image-slider" class="w-40 h-40 mx-auto mb-3 flex items-center justify-center shadow-2xl overflow-hidden z-10 relative rounded-2xl border border-white/20">
-                <img src="/assets/uploads/2.png" alt="Hero 1" class="absolute inset-0 w-full h-full object-cover slide-img transition-opacity duration-1000 opacity-100" onerror="this.src='/assets/images/placeholder.png'">
-                <img src="/assets/uploads/6.png" alt="Hero 2" class="absolute inset-0 w-full h-full object-cover slide-img transition-opacity duration-1000 opacity-0" onerror="this.src='/assets/images/placeholder.png'">
-                <img src="/assets/uploads/8.png" alt="Hero 3" class="absolute inset-0 w-full h-full object-cover slide-img transition-opacity duration-1000 opacity-0" onerror="this.src='/assets/images/placeholder.png'">
+        <div class="relative text-center w-full">
+            <!-- 1 photo statique -->
+            <div id="hero-image" class="w-40 h-40 mx-auto mb-3 flex items-center justify-center shadow-2xl overflow-hidden z-10 relative rounded-2xl border border-white/20">
+                <img src="/assets/uploads/6.png" alt="Hero" class="w-full h-full object-cover">
             </div>
+            
             <h1 class="text-xl font-bold leading-tight mb-1">Dahira A Khiba-i</h1>
             <h2 class="text-base font-light opacity-90 mb-1">Rassouloulahi</h2>
-            <p class="text-xs opacity-60 arabic text-center">الطريقة التجانية</p>
+            <p class="text-xs opacity-60 arabic text-center mb-6">الطريقة التجانية</p>
 
-            <!-- Bismillah decorative -->
-            <div class="mt-4 p-3 bg-white/10 rounded-2xl backdrop-blur border border-white/10">
-                <p class="arabic text-xl font-bold text-gold-400 mb-1">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
-                <p class="text-xs opacity-80">Au nom d'Allah, le Tout Miséricordieux</p>
+            <div class="space-y-4 max-w-sm mx-auto">
+                <!-- DAHIRA DU SAMEDI (sur le bleu) -->
+                <?php if ($dahira): ?>
+                <div class="bg-white/10 backdrop-blur-md text-white rounded-2xl p-4 border border-white/20 cursor-pointer shadow-lg active:scale-95 transition-transform text-left flex items-start gap-4" onclick="showEventModal(<?= htmlspecialchars(json_encode(['titre' => $dahira['nom_complet'], 'date' => date('d/m/Y H:i', strtotime($dahira['date_evenement'])), 'adresse' => $dahira['adresse'] ?? '', 'description' => $dahira['description'] ?? '', 'image' => $dahira['image'] ?? ''])) ?>)">
+                    <div class="w-12 h-12 rounded-xl bg-gold-500 text-primary-900 flex flex-col items-center justify-center flex-shrink-0 font-bold leading-none">
+                        <span class="text-lg"><?= date('d', strtotime($dahira['date_evenement'])) ?></span>
+                        <span class="text-[10px] uppercase font-semibold"><?= date('M', strtotime($dahira['date_evenement'])) ?></span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <span class="text-[10px] bg-gold-500/20 text-gold-200 font-bold px-2 py-0.5 rounded-full border border-gold-500/30">Dahira du Samedi</span>
+                        </div>
+                        <p class="font-semibold text-sm truncate"><?= e($dahira['nom_complet']) ?></p>
+                        <p class="text-[11px] opacity-80 truncate mt-0.5 flex items-center gap-1">
+                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <?= e($dahira['adresse'] ?? 'Lieu non défini') ?>
+                        </p>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- BOUTON ADHÉSION -->
+                <?php 
+                $usrAdh = isset($usrAdhesion) ? $usrAdhesion : 'non_membre';
+                if (!isLoggedIn() || $usrAdh === 'non_membre'): ?>
+                <button onclick="openAdhesionModal()" class="w-full bg-gold-400 hover:bg-gold-500 text-primary-900 font-bold py-3.5 rounded-xl shadow-xl transition-colors text-sm flex items-center justify-center gap-2">
+                    <span>👋</span> Adhérer au Dahira
+                </button>
+                <?php elseif ($usrAdh === 'en_attente'): ?>
+                <div class="w-full bg-white/10 border border-white/20 text-white font-medium py-3 rounded-xl text-sm flex items-center justify-center gap-2 backdrop-blur-sm">
+                    <span>⏳</span> Adhésion en attente de confirmation...
+                </div>
+                <?php endif; // Si membre, on cache le bouton ?>
             </div>
         </div>
     </div>
@@ -96,33 +133,7 @@ $dahira = $pdo->query("SELECT * FROM evenements WHERE type='dahira_samedi' AND d
         </div>
         <?php else: ?>
 
-        <!-- DAHIRA DU SAMEDI (mis en avant) -->
-        <?php if ($dahira): ?>
-        <div class="bg-gradient-to-r from-primary-900 to-primary-700 text-white rounded-2xl p-4 mb-3 fade-in-up cursor-pointer hover:shadow-lg transition-shadow" onclick="showEventModal(<?= htmlspecialchars(json_encode(['titre' => $dahira['nom_complet'], 'date' => date('d/m/Y H:i', strtotime($dahira['date_evenement'])), 'adresse' => $dahira['adresse'] ?? '', 'description' => $dahira['description'] ?? '', 'image' => $dahira['image'] ?? ''])) ?>)">
-            <div class="flex items-start gap-3">
-                <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    <?php if (!empty($dahira['image'])): ?>
-                    <img src="/assets/uploads/<?= e($dahira['image']) ?>" class="w-full h-full object-cover" alt="Event Image">
-                    <?php else: ?>
-                    <span class="font-bold text-lg"><?= mb_strtoupper(mb_substr($dahira['nom_complet'], 0, 1)) ?></span>
-                    <?php endif; ?>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-xs bg-gold-500 text-primary-900 font-bold px-2 py-0.5 rounded-full">Samedi</span>
-                        <span class="text-xs opacity-70"><?= date('d/m/Y', strtotime($dahira['date_evenement'])) ?></span>
-                    </div>
-                    <p class="font-semibold text-sm truncate"><?= e($dahira['nom_complet']) ?></p>
-                    <div class="flex items-center gap-1 mt-1">
-                        <svg class="w-3 h-3 opacity-70 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                        </svg>
-                        <p class="text-xs opacity-80 truncate"><?= e($dahira['adresse'] ?? '') ?></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
+        <!-- Les événements restants à venir -->
 
         <!-- Liste événements -->
         <div class="space-y-2">
@@ -256,6 +267,43 @@ function closeEventModal() {
         modal.classList.add('opacity-0', 'pointer-events-none');
     }, 300);
 }
+
+function openAdhesionModal() {
+    <?php if (!isLoggedIn()): ?>
+        window.location.href = '/public/login.php';
+        return;
+    <?php endif; ?>
+    const modal = document.getElementById('adhesion-modal');
+    if(!modal) return;
+    const content = document.getElementById('adhesion-modal-content');
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => {
+        content.classList.remove('translate-y-full', 'sm:translate-y-4', 'scale-95', 'opacity-0');
+        content.classList.add('translate-y-0', 'scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeAdhesionModal() {
+    const modal = document.getElementById('adhesion-modal');
+    const content = document.getElementById('adhesion-modal-content');
+    content.classList.remove('translate-y-0', 'scale-100', 'opacity-100');
+    content.classList.add('translate-y-full', 'sm:translate-y-4', 'scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+    }, 300);
+}
+
+function copyToClipboard(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = 'Copié !';
+        btn.classList.add('bg-green-100', 'text-green-800');
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('bg-green-100', 'text-green-800');
+        }, 2000);
+    });
+}
 </script>
 
 <!-- Event Modal -->
@@ -288,5 +336,49 @@ function closeEventModal() {
         </div>
     </div>
 </div>
+
+<?php if (isLoggedIn()): ?>
+<!-- Modal Adhesion -->
+<div id="adhesion-modal" class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white dark:bg-slate-900 w-full sm:w-[28rem] rounded-t-3xl sm:rounded-3xl shadow-2xl transform translate-y-full sm:translate-y-4 scale-95 opacity-0 transition-all duration-300 flex flex-col p-6" id="adhesion-modal-content">
+        <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-4 sm:hidden flex-shrink-0"></div>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Formulaire d'adhésion</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Devenez membre officiel du Dahira A Khiba-i Rassouloulahi.</p>
+        
+        <form action="/pages/adhesion_action.php" method="POST" class="space-y-4" id="adhesion-form">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Nom complet</label>
+                <input type="text" value="<?= e($_SESSION['user_nom'] ?? '') ?>" readonly class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none opacity-70 cursor-not-allowed">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Téléphone</label>
+                <input type="tel" name="telephone" required placeholder="+221 77 000 00 00" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-shadow">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Adresse complète</label>
+                <input type="text" name="adresse" required placeholder="Ex: Parcelles Assainies, Dakar" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-shadow">
+            </div>
+            
+            <div class="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-xl my-5">
+                <p class="text-xs text-amber-800 dark:text-amber-200 font-bold mb-1">Frais d'adhésion : 2000 FCFA</p>
+                <p class="text-[11px] text-amber-700 dark:text-amber-300/80 mb-2 leading-tight">Veuillez envoyer ce montant par Wave ou Orange Money au numéro suivant pour confirmer votre adhésion :</p>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-sm text-slate-900 dark:text-white" id="numero-adhesion">77 000 00 00</span>
+                    <button type="button" onclick="copyToClipboard('7700000000', this)" class="text-[10px] font-bold uppercase tracking-wide bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 px-2.5 py-1.5 rounded-lg active:scale-95 transition-transform">Copier</button>
+                </div>
+            </div>
+            
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-primary-900 hover:bg-primary-800 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                    J'ai effectué le transfert
+                </button>
+                <button type="button" onclick="closeAdhesionModal()" class="w-full mt-3 py-3 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-semibold text-sm transition-colors rounded-xl">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

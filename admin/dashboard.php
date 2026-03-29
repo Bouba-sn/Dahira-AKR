@@ -14,6 +14,7 @@ $stats = [
     'ecrits'       => $pdo->query("SELECT COUNT(*) FROM ecrits")->fetchColumn(),
     'revenue'      => $pdo->query("SELECT COALESCE(SUM(total),0) FROM commandes WHERE statut != 'annulee'")->fetchColumn(),
     'en_attente'   => $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en_attente'")->fetchColumn(),
+    'adh_attente'  => $pdo->query("SELECT COUNT(*) FROM utilisateurs WHERE statut_adhesion='en_attente'")->fetchColumn(),
 ];
 
 // Dernières commandes
@@ -34,7 +35,7 @@ $commandes = $pdo->query("SELECT c.*, u.nom as client FROM commandes c JOIN util
     </div>
 </div>
 
-<main class="pb-6 bg-slate-50 dark:bg-slate-950 min-h-screen">
+<main class="page-content bg-slate-50 dark:bg-slate-950 min-h-screen">
 
     <!-- STATS -->
     <div class="px-4 pt-4 grid grid-cols-2 gap-3">
@@ -43,6 +44,9 @@ $commandes = $pdo->query("SELECT c.*, u.nom as client FROM commandes c JOIN util
             <p class="text-2xl font-bold text-primary-900 dark:text-blue-400"><?= number_format($stats['revenue'], 0, ',', ' ') ?> <span class="text-sm font-normal text-slate-400">FCFA</span></p>
             <?php if ($stats['en_attente'] > 0): ?>
             <p class="text-xs text-orange-500 mt-1">⏳ <?= $stats['en_attente'] ?> commande<?= $stats['en_attente'] > 1 ? 's' : '' ?> en attente</p>
+            <?php endif; ?>
+            <?php if ($stats['adh_attente'] > 0): ?>
+            <p class="text-xs text-blue-500 mt-0.5">👋 <?= $stats['adh_attente'] ?> adhésion<?= $stats['adh_attente'] > 1 ? 's' : '' ?> en attente</p>
             <?php endif; ?>
         </div>
 
@@ -71,7 +75,7 @@ $commandes = $pdo->query("SELECT c.*, u.nom as client FROM commandes c JOIN util
             $menus = [
                 ['/admin/evenements.php', '📅', 'Événements', 'Gérer les Dahira'],
                 ['/admin/boutique.php',   '🛍️', 'Produits',   'Boutique'],
-                ['/admin/bibliotheque.php','📚', 'Bibliothèque','Auteurs & écrits'],
+                ['/admin/biographie.php','📖', 'Biographie','Filiations & parcours'],
                 ['/admin/utilisateurs.php','👥', 'Membres',    'Gérer les comptes'],
                 ['/admin/commandes.php',  '📦', 'Commandes',  'Suivi livraisons'],
                 ['/admin/rappels.php',    '✨', 'Rappels',    'Rappel du jour'],
@@ -86,6 +90,33 @@ $commandes = $pdo->query("SELECT c.*, u.nom as client FROM commandes c JOIN util
             <?php endforeach; ?>
         </div>
     </div>
+
+    <!-- ADHÉSIONS EN ATTENTE -->
+    <?php
+    $adhesions = $pdo->query("SELECT * FROM utilisateurs WHERE statut_adhesion = 'en_attente' ORDER BY telephone ASC")->fetchAll();
+    if (!empty($adhesions)):
+    ?>
+    <div class="px-4 mt-5">
+        <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">Adhésions en attente</h2>
+        <div class="space-y-2">
+            <?php foreach ($adhesions as $adh): ?>
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-3 border border-slate-100 dark:border-slate-700 flex items-center justify-between gap-3 shadow-sm card-hover fade-in-up">
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-sm text-slate-900 dark:text-white truncate"><?= e($adh['nom']) ?></p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5"><span class="opacity-60">📞</span> <?= e($adh['telephone']) ?></p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-500 truncate flex items-center gap-1 mt-0.5"><span class="opacity-60">📍</span> <?= e($adh['adresse']) ?></p>
+                </div>
+                <form action="/admin/valider_adhesion.php" method="POST" class="flex-shrink-0">
+                    <input type="hidden" name="user_id" value="<?= $adh['id'] ?>">
+                    <button type="submit" class="bg-green-100 hover:bg-green-200 dark:bg-green-900/40 text-green-700 dark:text-green-400 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-2 active:scale-95 transition-all shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m5 13 4 4L19 7"/></svg> Valider
+                    </button>
+                </form>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- DERNIÈRES COMMANDES -->
     <?php if (!empty($commandes)): ?>

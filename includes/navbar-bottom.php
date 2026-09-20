@@ -1,73 +1,132 @@
 <?php
 // includes/navbar-bottom.php
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+$isAdminArea = str_contains($requestUri, '/admin/');
+$isUserAdmin = function_exists('isAdmin') && isAdmin();
+$isUserLoggedIn = function_exists('isLoggedIn') && isLoggedIn();
+$isUserMembre = function_exists('isMembre') && isMembre();
 
-function navItem(string $href, string $icon, string $label, string $page, string $current): string {
-    $active = str_contains($current, $page);
-    $activeClass = $active
-        ? 'text-primary-900 dark:text-blue-300'
-        : 'text-slate-400 dark:text-slate-500';
-    $indicator = $active
-        ? '<span class="w-1 h-1 rounded-full bg-primary-900 dark:bg-blue-300 mt-0.5"></span>'
-        : '<span class="w-1 h-1 mt-0.5"></span>';
-
-    return <<<HTML
-    <a href="{$href}" class="flex flex-col items-center gap-0.5 py-2 px-3 flex-1 {$activeClass} transition-colors duration-200">
-        {$icon}
-        <span class="text-[10px] font-medium leading-tight">{$label}</span>
-        {$indicator}
-    </a>
-    HTML;
+$userInitials = 'AK';
+$userName = 'Membre';
+if ($isUserLoggedIn && isset($_SESSION['user_nom'])) {
+    $userName = $_SESSION['user_nom'];
+    $parts = preg_split('/\s+/', trim($userName));
+    if (count($parts) >= 2) {
+        $userInitials = strtoupper(mb_substr($parts[0], 0, 1) . mb_substr($parts[1], 0, 1));
+    } else {
+        $userInitials = strtoupper(mb_substr($userName, 0, 2));
+    }
 }
 ?>
 
-<nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 bg-white/95 dark:bg-slate-900/95 border-t border-slate-100 dark:border-slate-800"
-     style="padding-bottom: env(safe-area-inset-bottom);">
-    <div class="flex items-center justify-around">
+<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 border-t md:border-t-0 border-slate-200/80 dark:border-slate-800 transition-colors"
+     style="padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left, 0); padding-right: env(safe-area-inset-right, 0);">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 w-full h-full flex items-center justify-between">
 
-        <!-- Accueil -->
-        <a href="/pages/accueil.php" class="flex flex-col items-center gap-0.5 py-2 px-3 flex-1 transition-colors duration-200
-            <?= in_array($currentPage, ['accueil', 'index']) ? 'text-primary-900 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500' ?>">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="<?= in_array($currentPage, ['accueil','index']) ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            <span class="text-[10px] font-medium">Accueil</span>
-            <?php if (in_array($currentPage, ['accueil','index'])): ?><span class="w-1 h-1 rounded-full bg-primary-900 dark:bg-blue-300 mt-0.5"></span><?php else: ?><span class="w-1 h-1 mt-0.5"></span><?php endif; ?>
+        <!-- 1. LOGO & BRANDING (VISIBLE SUR DESKTOP) -->
+        <a href="/pages/accueil.php" class="hidden md:flex items-center gap-3 group shrink-0" title="Dahira A Khiba-i Rassouloulahi">
+            <img src="/assets/uploads/20.png" alt="Dahira AKR" class="w-9 h-9 rounded-xl object-contain shadow-xs group-hover:scale-105 transition-transform" onerror="this.style.display='none'">
+            <div class="leading-tight">
+                <span class="font-black text-slate-900 dark:text-white text-base tracking-tight block group-hover:text-primary-700 dark:group-hover:text-blue-400 transition-colors">Dahira AKR</span>
+                <span class="text-[10px] text-slate-400 font-medium tracking-wide">A Khiba-i Rassouloulahi</span>
+            </div>
         </a>
 
-        <!-- Tidiany Way -->
-        <a href="/pages/tidiany-way.php" class="flex flex-col items-center gap-0.5 py-2 px-3 flex-1 transition-colors duration-200
-            <?= in_array($currentPage, ['tidiany-way','produit','panier','commande']) ? 'text-primary-900 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500' ?>">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="<?= in_array($currentPage, ['tidiany-way','produit','panier','commande']) ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                <line x1="3" x2="21" y1="6" y2="6"/>
-                <path d="M16 10a4 4 0 0 1-8 0"/>
-            </svg>
-            <span class="text-[10px] font-medium">Boutique</span>
-            <?php if (in_array($currentPage, ['tidiany-way','produit','panier','commande'])): ?><span class="w-1 h-1 rounded-full bg-primary-900 dark:bg-blue-300 mt-0.5"></span><?php else: ?><span class="w-1 h-1 mt-0.5"></span><?php endif; ?>
-        </a>
+        <!-- 2. NAVIGATION (MOBILE & DESKTOP OPTIMISÉS) -->
+        <div class="flex items-center justify-around md:justify-center gap-1 sm:gap-2 md:gap-1.5 lg:gap-2 w-full md:w-auto py-1 md:py-0">
+            
+            <!-- Accueil -->
+            <?php $isAccueil = in_array($currentPage, ['accueil', 'index']) && !$isAdminArea; ?>
+            <a href="/pages/accueil.php" class="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 py-1.5 px-2.5 sm:px-3 md:px-3.5 md:py-2 rounded-xl transition-all duration-200 flex-1 md:flex-none justify-center
+                <?= $isAccueil 
+                    ? 'text-primary-900 dark:text-blue-400 font-bold md:bg-primary-50 md:dark:bg-blue-950/60 md:text-primary-900 md:dark:text-blue-300 md:border md:border-primary-200/80 md:dark:border-blue-800/80 md:shadow-xs' 
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white md:hover:bg-slate-100 md:dark:hover:bg-slate-800/60 font-medium' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="<?= $isAccueil ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span class="text-[10px] md:text-xs font-semibold">Accueil</span>
+            </a>
 
-        <!-- Biographie -->
-        <a href="/pages/biographie.php" class="flex flex-col items-center gap-0.5 py-2 px-3 flex-1 transition-colors duration-200
-            <?= in_array($currentPage, ['biographie']) ? 'text-primary-900 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500' ?>">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="<?= in_array($currentPage, ['biographie']) ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 10h6"></path><path d="M9 18h6"></path>
-            </svg>
-            <span class="text-[10px] font-medium">Biographie</span>
-            <?php if (in_array($currentPage, ['biographie'])): ?><span class="w-1 h-1 rounded-full bg-primary-900 dark:bg-blue-300 mt-0.5"></span><?php else: ?><span class="w-1 h-1 mt-0.5"></span><?php endif; ?>
-        </a>
+            <!-- Boutique -->
+            <?php $isBoutique = in_array($currentPage, ['tidiany-way','produit','panier','commande']) && !$isAdminArea; ?>
+            <a href="/pages/tidiany-way.php" class="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 py-1.5 px-2.5 sm:px-3 md:px-3.5 md:py-2 rounded-xl transition-all duration-200 flex-1 md:flex-none justify-center
+                <?= $isBoutique 
+                    ? 'text-primary-900 dark:text-blue-400 font-bold md:bg-primary-50 md:dark:bg-blue-950/60 md:text-primary-900 md:dark:text-blue-300 md:border md:border-primary-200/80 md:dark:border-blue-800/80 md:shadow-xs' 
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white md:hover:bg-slate-100 md:dark:hover:bg-slate-800/60 font-medium' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="<?= $isBoutique ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" x2="21" y1="6" y2="6"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+                <span class="text-[10px] md:text-xs font-semibold">Boutique</span>
+            </a>
 
-        <!-- Paramètres -->
-        <a href="/pages/parametres.php" class="flex flex-col items-center gap-0.5 py-2 px-3 flex-1 transition-colors duration-200
-            <?= $currentPage === 'parametres' ? 'text-primary-900 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500' ?>">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="<?= $currentPage === 'parametres' ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-                <circle cx="12" cy="12" r="3"/>
-            </svg>
-            <span class="text-[10px] font-medium">Paramètres</span>
-            <?php if ($currentPage === 'parametres'): ?><span class="w-1 h-1 rounded-full bg-primary-900 dark:bg-blue-300 mt-0.5"></span><?php else: ?><span class="w-1 h-1 mt-0.5"></span><?php endif; ?>
-        </a>
+            <!-- Cotisations (Membres uniquement) -->
+            <?php if ($isUserMembre): ?>
+            <?php $isCotisations = in_array($currentPage, ['cotisations', 'cotisation-membre']) && !$isAdminArea; ?>
+            <a href="/pages/cotisations.php" class="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 py-1.5 px-2.5 sm:px-3 md:px-3.5 md:py-2 rounded-xl transition-all duration-200 flex-1 md:flex-none justify-center
+                <?= $isCotisations 
+                    ? 'text-primary-900 dark:text-blue-400 font-bold md:bg-primary-50 md:dark:bg-blue-950/60 md:text-primary-900 md:dark:text-blue-300 md:border md:border-primary-200/80 md:dark:border-blue-800/80 md:shadow-xs' 
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white md:hover:bg-slate-100 md:dark:hover:bg-slate-800/60 font-medium' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="<?= $isCotisations ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect width="20" height="14" x="2" y="5" rx="2"/>
+                    <line x1="2" x2="22" y1="10" y2="10"/>
+                </svg>
+                <span class="text-[10px] md:text-xs font-semibold">Cotisations</span>
+            </a>
+            <?php endif; ?>
+
+            <!-- Paramètres -->
+            <?php $isParametres = ($currentPage === 'parametres') && !$isAdminArea; ?>
+            <a href="/pages/parametres.php" class="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 py-1.5 px-2.5 sm:px-3 md:px-3.5 md:py-2 rounded-xl transition-all duration-200 flex-1 md:flex-none justify-center
+                <?= $isParametres 
+                    ? 'text-primary-900 dark:text-blue-400 font-bold md:bg-primary-50 md:dark:bg-blue-950/60 md:text-primary-900 md:dark:text-blue-300 md:border md:border-primary-200/80 md:dark:border-blue-800/80 md:shadow-xs' 
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white md:hover:bg-slate-100 md:dark:hover:bg-slate-800/60 font-medium' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="<?= $isParametres ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m7.08 7.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m7.08-7.08l4.24-4.24"/>
+                </svg>
+                <span class="text-[10px] md:text-xs font-semibold">Paramètres</span>
+            </a>
+
+            <!-- Onglet Administration (VISIBLE SUR DESKTOP SI ADMIN) -->
+            <?php if ($isUserAdmin): ?>
+            <a href="/admin/dashboard.php" class="hidden md:flex flex-row items-center gap-2 py-2 px-3.5 rounded-xl transition-all duration-200
+                <?= $isAdminArea 
+                    ? 'bg-amber-500/15 text-amber-800 dark:text-gold-300 font-bold border border-amber-500/30 shadow-xs' 
+                    : 'text-amber-600 hover:text-amber-800 dark:text-gold-400 dark:hover:text-gold-200 hover:bg-amber-500/10 font-semibold' ?>">
+                <svg class="w-4 h-4 shrink-0 text-amber-600 dark:text-gold-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                <span class="text-xs">Administration</span>
+            </a>
+            <?php endif; ?>
+
+        </div>
+
+        <!-- 3. ACTIONS PROFIL & SESSION (VISIBLE SUR DESKTOP) -->
+        <div class="hidden md:flex items-center gap-2 shrink-0">
+            <?php if ($isUserLoggedIn): ?>
+            <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1">
+                <div class="w-7 h-7 rounded-lg <?= $isUserAdmin ? 'bg-gradient-to-br from-gold-500 to-amber-600 text-slate-950' : 'bg-gradient-to-br from-primary-700 to-blue-900 text-white' ?> font-black text-xs flex items-center justify-center shadow-xs">
+                    <?= e($userInitials) ?>
+                </div>
+                <div class="text-left leading-tight hidden lg:block">
+                    <p class="text-xs font-semibold text-slate-900 dark:text-white max-w-[110px] truncate"><?= e($userName) ?></p>
+                    <p class="text-[10px] <?= $isUserAdmin ? 'text-gold-600 dark:text-gold-400 font-bold' : 'text-slate-400' ?>"><?= $isUserAdmin ? 'Administrateur' : 'Membre' ?></p>
+                </div>
+            </div>
+            <a href="/public/logout.php" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 dark:bg-slate-800 dark:hover:bg-rose-950/40 dark:text-slate-400 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors" title="Se déconnecter">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </a>
+            <?php else: ?>
+            <a href="/public/login.php" class="px-3.5 py-1.5 rounded-xl bg-primary-900 hover:bg-primary-800 text-white text-xs font-bold shadow-xs transition-colors">
+                Connexion
+            </a>
+            <?php endif; ?>
+        </div>
 
     </div>
 </nav>

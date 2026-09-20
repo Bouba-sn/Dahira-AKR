@@ -10,43 +10,16 @@
   "lang": "fr",
   "icons": [
     {
-      "src": "/assets/icons/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/assets/icons/icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/assets/icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/assets/icons/icon-192x192.png",
+      "src": "/assets/uploads/20.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/assets/icons/icon-512x512.png",
+      "src": "/assets/uploads/20.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable any"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/assets/screenshots/home.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Page d'accueil"
+      "purpose": "any maskable"
     }
   ],
   "categories": ["lifestyle", "religion", "education"],
@@ -54,16 +27,14 @@
     {
       "name": "Bibliothèque",
       "short_name": "Biblio",
-      "description": "Accéder à la bibliothèque islamique",
-      "url": "/pages/bibliotheque.php",
-      "icons": [{ "src": "/assets/icons/icon-96x96.png", "sizes": "96x96" }]
+      "description": "Accéder à la bibliothèque",
+      "url": "/pages/bibliotheque.php"
     },
     {
       "name": "Boutique",
       "short_name": "Boutique",
-      "description": "Tidiany Way - Boutique islamique",
-      "url": "/pages/tidiany-way.php",
-      "icons": [{ "src": "/assets/icons/icon-96x96.png", "sizes": "96x96" }]
+      "description": "Tidiany Way",
+      "url": "/pages/tidiany-way.php"
     }
   ]
 }

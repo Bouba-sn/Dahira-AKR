@@ -1,21 +1,26 @@
 -- ============================================
 -- DAHIRA A KHIBA-I RASSOULOULAHI - Base de données
+-- Schéma complet consolidé prêt pour hébergement
 -- ============================================
-
-CREATE DATABASE IF NOT EXISTS dahira_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE dahira_db;
 
 -- Table utilisateurs
 CREATE TABLE IF NOT EXISTS utilisateurs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) DEFAULT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('admin','user') DEFAULT 'user',
+    categorie_membre ENUM('bureau','simple','enfant') DEFAULT 'simple',
+    fonction VARCHAR(100) DEFAULT 'Membre',
     statut_adhesion ENUM('non_membre','en_attente','membre') DEFAULT 'non_membre',
+    type_adhesion ENUM('nouvelle','carte_existante') DEFAULT 'nouvelle',
+    carte_physique TINYINT(1) NOT NULL DEFAULT 0,
+    numero_carte VARCHAR(50) DEFAULT NULL,
     telephone VARCHAR(20) DEFAULT NULL,
     adresse TEXT DEFAULT NULL,
     avatar VARCHAR(255) DEFAULT NULL,
+    photo_membre VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -37,24 +42,28 @@ CREATE TABLE IF NOT EXISTS produits (
     nom VARCHAR(200) NOT NULL,
     prix DECIMAL(10,2) NOT NULL,
     description TEXT,
+    details VARCHAR(500) DEFAULT NULL,
     image VARCHAR(255),
     stock INT DEFAULT 0,
+    en_promo TINYINT(1) DEFAULT 0,
+    prix_promo DECIMAL(10,2) DEFAULT NULL,
     categorie VARCHAR(100),
     actif TINYINT(1) DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- Table commandes
+-- Table commandes (supporte clients avec application et ventes directes au guichet)
 CREATE TABLE IF NOT EXISTS commandes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT NULL,
+    nom_client VARCHAR(150) DEFAULT NULL,
     total DECIMAL(10,2) NOT NULL,
     statut ENUM('en_attente','confirmee','expediee','livree','annulee') DEFAULT 'en_attente',
-    mode_paiement ENUM('livraison','wave','orange_money') DEFAULT 'livraison',
+    mode_paiement ENUM('livraison','wave','especes') DEFAULT 'especes',
     adresse_livraison TEXT,
     telephone_client VARCHAR(20) DEFAULT NULL,
     date_commande TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- Table détails commandes
@@ -64,6 +73,7 @@ CREATE TABLE IF NOT EXISTS commande_details (
     produit_id INT NOT NULL,
     quantite INT NOT NULL,
     prix_unitaire DECIMAL(10,2) NOT NULL,
+    details VARCHAR(500) DEFAULT NULL,
     FOREIGN KEY (commande_id) REFERENCES commandes(id) ON DELETE CASCADE,
     FOREIGN KEY (produit_id) REFERENCES produits(id)
 ) ENGINE=InnoDB;
@@ -90,53 +100,90 @@ CREATE TABLE IF NOT EXISTS ecrits (
     FOREIGN KEY (auteur_id) REFERENCES auteurs(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Table rappels du jour
-CREATE TABLE IF NOT EXISTS rappels (
+-- Table heures de prières
+CREATE TABLE IF NOT EXISTS heures_prieres (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    texte_arabe TEXT NOT NULL,
-    texte_francais TEXT NOT NULL,
-    source VARCHAR(200),
-    date DATE,
-    actif TINYINT(1) DEFAULT 1
+    date_debut DATE,
+    date_fin DATE,
+    fajr TIME NOT NULL,
+    dhuhr TIME NOT NULL,
+    asr TIME NOT NULL,
+    maghrib TIME NOT NULL,
+    isha TIME NOT NULL,
+    actif TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- ============================================
--- DONNÉES DE DÉMONSTRATION
--- ============================================
+-- Table journal des appels à la prière (Adhan)
+CREATE TABLE IF NOT EXISTS adhan_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pray_name VARCHAR(20) NOT NULL,
+    sent_at DATETIME NOT NULL,
+    INDEX idx_pray (pray_name),
+    INDEX idx_sent (sent_at)
+) ENGINE=InnoDB;
 
--- Admin par défaut (mot de passe: password)
-INSERT INTO utilisateurs (nom, email, password, role) VALUES
-('Administrateur', 'admin@dahira.sn', '$2y$12$3j0hfK8ETjlc16oPHJ9v/.lsE8Kaw9BMLNGJpWnvHCHecNMMEORYy', 'admin'),
-('Mamadou Diallo', 'user@dahira.sn', '$2y$12$3j0hfK8ETjlc16oPHJ9v/.lsE8Kaw9BMLNGJpWnvHCHecNMMEORYy', 'user');
+-- Table notifications
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    titre VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    lien VARCHAR(255) DEFAULT '#',
+    lu TINYINT(1) DEFAULT 0,
+    type ENUM('commande','adhesion','systeme') DEFAULT 'systeme',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
--- Événements
-INSERT INTO evenements (type, nom_complet, adresse, date_evenement, description) VALUES
-('gamou', 'Grand Gamou Annuel 2025', 'Tivaouane, Sénégal', '2025-03-15 08:00:00', 'Célébration annuelle du Mawlid Nabawi à Tivaouane'),
-('dahira_samedi', 'Dahira du Samedi - Dakar', '45 Rue Blaise Diagne, Dakar', '2025-01-25 16:00:00', 'Réunion hebdomadaire de la Dahira avec récitation du Wird'),
-('ziar', 'Ziar chez Serigne Babacar Sy', 'Tivaouane, Quartier Darou', '2025-02-08 09:00:00', 'Visite de piété et bénédiction');
+-- Table push_subscriptions
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    endpoint TEXT NOT NULL,
+    p256dh VARCHAR(255) DEFAULT NULL,
+    auth VARCHAR(255) DEFAULT NULL,
+    actif TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
--- Auteurs
-INSERT INTO auteurs (nom, biographie, ordre) VALUES
-('Cheikh Ahmad Tidiane Chérif', 'Fondateur de la Tijaniyya, né en 1737 à Ain Madhi en Algérie. Grand soufi et maître spirituel, il reçut la Tariqa directement du Prophète (PSL) lors d\'une vision. Ses enseignements guident des millions de croyants à travers le monde.', 1),
-('Cheikh Seydil Hadji Malick Sy', 'Grand khalife et pilier de la Tijaniyya au Sénégal, né en 1855. Érudit exceptionnel, poète mystique et réformateur social. Ses qasidas en arabe sont chantées lors de tous les rassemblements tijanis.', 2),
-('Serigne Babacar Sy', 'Fils et successeur de Cheikh Malick Sy, il consolida la Tijaniyya au Sénégal et étendit son rayonnement. Connu pour sa sagesse et sa générosité, il fut un guide spirituel incontesté.', 3);
+-- Table cotisation_campagnes
+CREATE TABLE IF NOT EXISTS cotisation_campagnes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    active TINYINT(1) DEFAULT 1,
+    description TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
--- Écrits
-INSERT INTO ecrits (auteur_id, titre, titre_arabe, contenu_arabe, contenu_francais, type) VALUES
-(1, 'Jawahir al-Ma\'ani', 'جواهر المعاني', 'بسم الله الرحمن الرحيم\nالحمد لله رب العالمين', 'Au nom d\'Allah, le Très Miséricordieux, le Tout Miséricordieux.\nLoange à Allah, Seigneur des mondes.', 'livre'),
-(2, 'Maa al-Aynayn', 'ماء العينين', 'يا نبي الله يا خير الورى\nأنت نور الله في كل الدجى', 'Ô Prophète d\'Allah, ô meilleur des créatures\nTu es la lumière d\'Allah dans toutes les ténèbres', 'qasida'),
-(2, 'Rawdatun Nayireen', 'روضة النيرين', 'صلى الإله على النبي محمد\nخير الأنام وأكرم المبعوث', 'Qu\'Allah bénisse le Prophète Muhammad\nLe meilleur des hommes et le plus noble envoyé', 'qasida');
+-- Table cotisation_paiements
+CREATE TABLE IF NOT EXISTS cotisation_paiements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    campagne_id INT NOT NULL,
+    user_id INT NOT NULL,
+    admin_id INT DEFAULT NULL,
+    montant DECIMAL(10,2) NOT NULL,
+    date_paiement DATE NOT NULL,
+    mode_paiement ENUM('especes','wave','orange_money','virement','autre') DEFAULT 'especes',
+    recu_numero VARCHAR(50) DEFAULT NULL,
+    commentaire TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (campagne_id) REFERENCES cotisation_campagnes(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+    FOREIGN KEY (admin_id) REFERENCES utilisateurs(id) ON DELETE SET NULL,
+    INDEX idx_campagne_user (campagne_id, user_id),
+    INDEX idx_date_paiement (date_paiement)
+) ENGINE=InnoDB;
 
--- Rappels
-INSERT INTO rappels (texte_arabe, texte_francais, source) VALUES
-('اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ الفَاتِحِ لِمَا أُغْلِقَ', 'Ô Allah, bénis notre Seigneur Muhammad, celui qui ouvre ce qui était fermé', 'Wird Tijaniyya - Salatul Fatihi'),
-('أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ\nبِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ', 'Je cherche refuge auprès d\'Allah contre le diable maudit.\nAu nom d\'Allah, le Tout Miséricordieux, le Très Miséricordieux.', 'Coran'),
-('سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ', 'Gloire à Allah et louange à Lui, Gloire à Allah l\'Immense', 'Hadith Sahih');
+-- Table password_resets (codes de vérification pour mot de passe oublié)
+CREATE TABLE IF NOT EXISTS password_resets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(150) NOT NULL,
+    code VARCHAR(10) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_code (code)
+) ENGINE=InnoDB;
 
--- Produits
-INSERT INTO produits (nom, prix, description, stock, categorie) VALUES
-('Chapelet en bois de santal 99 grains', 8500, 'Chapelet traditionnel en bois de santal parfumé, 99 grains avec séparateurs en métal doré', 50, 'Accessoires'),
-('Livre: Jawahir al-Maani (Français)', 12000, 'Traduction française complète du Jawahir al-Maani de Cheikh Ahmad Tidiane Chérif', 30, 'Livres'),
-('Parfum Musc Tijaniyya 25ml', 6500, 'Parfum musc de haute qualité, idéal pour les cérémonies religieuses', 100, 'Parfums'),
-('Djellaba Homme Blanche', 25000, 'Djellaba traditionnelle en coton fin, taille universelle ajustable', 20, 'Vêtements'),
-('Tapis de prière brodé', 15000, 'Tapis de prière en velours avec motifs géométriques islamiques brodés', 40, 'Accessoires');

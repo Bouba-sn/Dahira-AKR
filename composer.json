@@ -1,0 +1,22 @@
+{
+    "name": "dahira/dahira-akr-v2",
+    "description": "Plateforme Dahira AKR v2 avec notifications temps réel WebSockets",
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "cboden/ratchet": "^0.4.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0 || ^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    }
+}

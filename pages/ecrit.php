@@ -15,7 +15,7 @@ $pageTitle = $ecrit['titre'];
 ?>
 
 <!-- TOP BAR -->
-<div class="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-4">
+<div class="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-4" style="height: calc(3.5rem + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px);">
     <div class="flex items-center h-14 gap-3">
         <a href="/pages/auteur.php?id=<?= $ecrit['auteur_id'] ?>" class="w-8 h-8 flex items-center justify-center text-slate-600 dark:text-slate-300">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
@@ -47,13 +47,13 @@ $pageTitle = $ecrit['titre'];
     <div class="sticky top-14 z-30 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
         <div class="flex">
             <button id="tab-arabe" onclick="showTab('arabe')" class="flex-1 py-2.5 text-sm font-medium text-center border-b-2 border-emerald-600 text-emerald-600 transition-colors">
-                🌙 Arabe
+                Arabe
             </button>
             <button id="tab-francais" onclick="showTab('francais')" class="flex-1 py-2.5 text-sm font-medium text-center border-b-2 border-transparent text-slate-400 transition-colors">
-                🇫🇷 Français
+                Français
             </button>
             <button id="tab-bilingue" onclick="showTab('bilingue')" class="flex-1 py-2.5 text-sm font-medium text-center border-b-2 border-transparent text-slate-400 transition-colors">
-                🔀 Bilingue
+                Bilingue
             </button>
         </div>
     </div>
@@ -145,7 +145,7 @@ function shareEcrit() {
         });
     } else {
         navigator.clipboard?.writeText(window.location.href);
-        showToast('🔗 Lien copié !');
+        showToast('Lien copié dans le presse-papier !');
     }
 }
 </script>

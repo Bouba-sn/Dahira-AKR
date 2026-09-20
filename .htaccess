@@ -6,9 +6,8 @@ Options -Indexes
     # Autoriser par défaut
 </Files>
 
-<FilesMatch "^(database\.php|\.env|schema\.sql)$">
-    Order Allow,Deny
-    Deny from all
+<FilesMatch "^(database\.php|\.env|schema\.sql|run_migration.*\.php|generate_.*\.php)$">
+    Require all denied
 </FilesMatch>
 
 # Protéger le répertoire config
@@ -16,12 +15,20 @@ Options -Indexes
     RewriteEngine On
     RewriteBase /
 
-    # Redirection HTTPS (décommenter en production)
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    # Redirection HTTPS automatique en production (compatible InfinityFree et Cloudflare)
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTP_HOST} !localhost [NC]
+    RewriteCond %{HTTP_HOST} !\.test$ [NC]
+    RewriteCond %{HTTP_HOST} !^127\.0\.0\.1
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # Bloquer l'accès direct au config/
     RewriteRule ^config/ - [F,L]
+
+    # Bloquer l'accès aux scripts de migration
+    RewriteRule ^run_migration - [F,L]
+    RewriteRule ^generate_ - [F,L]
 
     # Page d'accueil
     RewriteRule ^$ pages/accueil.php [L]
@@ -39,8 +46,8 @@ Options -Indexes
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-    # Cache statique assets
-    <FilesMatch "\.(ico|css|js|gif|jpe?g|png|svg|woff2?)$">
+    # Cache statique assets (30 jours) pour chargement instantané
+    <FilesMatch "\.(ico|css|js|gif|jpe?g|png|svg|webp|woff2?)$">
         Header set Cache-Control "max-age=2592000, public"
     </FilesMatch>
 </IfModule>

@@ -12,31 +12,37 @@ if (isLoggedIn()) {
 }
 
 $error = '';
-$emailInput = trim($_POST['email'] ?? ($_SESSION['reset_email'] ?? ''));
+$phoneInput = trim($_POST['telephone'] ?? ($_SESSION['reset_phone'] ?? ''));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
         $error = 'Token de sécurité invalide. Veuillez réessayer.';
     } else {
-        $email = trim(strtolower($_POST['email'] ?? ''));
+        $phone = trim($_POST['telephone'] ?? '');
+        $digits = preg_replace('/\D/', '', $phone);
 
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = 'Veuillez saisir une adresse email valide.';
+        if (empty($digits) || strlen($digits) < 7) {
+            $error = 'Veuillez saisir un numéro de téléphone valide.';
         } else {
             try {
                 $service = new PasswordResetService(db());
-                $user = $service->findUserByEmail($email);
+                $resetData = $service->createResetCodeForPhone($phone);
 
-                if (!$user) {
-                    $error = "Aucun compte n'est associé à l'adresse email {$email}.";
+                if (!$resetData) {
+                    $error = "Aucun compte n'est associé au numéro de téléphone " . htmlspecialchars($phone) . ".";
                 } else {
-                    $code = $service->createResetCode($email);
-                    $_SESSION['reset_email'] = $email;
+                    $_SESSION['reset_phone'] = $phone;
+                    $_SESSION['reset_phone_normalized'] = $resetData['clean_phone'];
+                    $_SESSION['reset_wa_phone'] = $resetData['wa_phone'];
+                    $_SESSION['reset_wa_url'] = $resetData['wa_url'];
+                    $_SESSION['reset_user_name'] = trim(($resetData['user']['prenom'] ?? '') . ' ' . ($resetData['user']['nom'] ?? ''));
+                    unset($_SESSION['reset_code_verified'], $_SESSION['verified_code']);
+                    
                     header('Location: /public/reset-password.php?sent=1');
                     exit;
                 }
             } catch (\Throwable $e) {
-                $error = "Une erreur est survenue lors de l'envoi du code. Veuillez réessayer.";
+                $error = "Une erreur est survenue lors de la génération du code. Veuillez réessayer.";
             }
         }
     }
@@ -65,7 +71,7 @@ require_once __DIR__ . '/../includes/header.php';
             </a>
             <h2 class="text-xl font-bold text-slate-900 dark:text-white">Mot de passe oublié</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Indiquez l'adresse email de votre compte. Nous vous enverrons immédiatement un code de vérification à 6 chiffres pour définir un nouveau mot de passe.
+                Indiquez le numéro de téléphone de votre compte. Un code de vérification à 6 chiffres sera généré et envoyé directement sur votre <strong class="text-emerald-600 dark:text-emerald-400 font-semibold">WhatsApp</strong> pour réinitialiser votre mot de passe.
             </p>
         </div>
 
@@ -80,19 +86,24 @@ require_once __DIR__ . '/../includes/header.php';
             <?= csrfField() ?>
 
             <div>
-                <label class="text-xs font-semibold text-slate-700 dark:text-slate-200 block mb-1.5">Adresse email de votre compte</label>
+                <label class="text-xs font-semibold text-slate-700 dark:text-slate-200 block mb-1.5">Numéro de téléphone (WhatsApp)</label>
                 <div class="relative">
-                    <input type="email" name="email" required autocomplete="email" autofocus
-                           value="<?= e($emailInput) ?>"
-                           placeholder="votre.email@exemple.sn"
-                           class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
-                    <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <input type="tel" name="telephone" required autocomplete="tel" autofocus
+                           value="<?= e($phoneInput) ?>"
+                           placeholder="ex : 77 123 45 67 ou +221 77 473 14 93"
+                           class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                    <svg class="w-4 h-4 text-emerald-600 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                 </div>
+                <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 flex items-center gap-1">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Le code sera envoyé sur WhatsApp associé à ce numéro
+                </p>
             </div>
 
-            <button type="submit" class="w-full bg-primary-900 hover:bg-primary-800 text-white rounded-xl py-3.5 font-bold text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2">
-                <span>Envoyer le code de vérification</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-3.5 font-bold text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+                <!-- WhatsApp SVG icon -->
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.086.275.073.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.086s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.392-12.416c-5.514 0-10 4.486-10 10 0 1.764.462 3.42 1.267 4.861l-1.298 4.743 4.869-1.277c1.394.757 2.986 1.189 4.675 1.189 5.514 0 10-4.486 10-10s-4.486-10-10-10zm0 18.25c-1.547 0-3.048-.445-4.339-1.286l-.311-.202-3.238.85.864-3.155-.205-.327c-.899-1.433-1.373-3.1-1.373-4.83 0-4.549 3.701-8.25 8.252-8.25 4.548 0 8.248 3.701 8.248 8.25 0 4.551-3.7 8.25-8.25 8.25z"/></svg>
+                <span>Envoyer le code sur WhatsApp</span>
             </button>
         </form>
 

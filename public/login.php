@@ -15,11 +15,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
         $error = 'Token invalide.';
     } else {
-        $email    = sanitize($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $loginInput = sanitize($_POST['email'] ?? '');
+        $password   = $_POST['password'] ?? '';
 
-        $stmt = db()->prepare("SELECT * FROM utilisateurs WHERE email = ? LIMIT 1");
-        $stmt->execute([$email]);
+        $digits = preg_replace('/\D/', '', $loginInput);
+        $cleanSql = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telephone, ' ', ''), '-', ''), '+', ''), '.', ''), '/', '')";
+
+        $stmt = db()->prepare("
+            SELECT * FROM utilisateurs 
+            WHERE email = ? 
+               OR telephone = ? 
+               OR (LENGTH(?) >= 7 AND ({$cleanSql} = ? OR {$cleanSql} LIKE ?))
+            LIMIT 1
+        ");
+        $stmt->execute([
+            $loginInput, 
+            $loginInput, 
+            $digits, 
+            $digits, 
+            '%' . (strlen($digits) >= 9 ? substr($digits, -9) : $digits)
+        ]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
@@ -33,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ' . $redirect);
             exit;
         } else {
-            $error = 'Email ou mot de passe incorrect.';
+            $error = 'Identifiant ou mot de passe incorrect.';
         }
     }
 }
@@ -76,10 +91,10 @@ require_once __DIR__ . '/../includes/header.php';
             <?= csrfField() ?>
 
             <div>
-                <label class="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1.5">Adresse email</label>
-                <input type="email" name="email" required autocomplete="email"
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1.5">Adresse email ou Téléphone</label>
+                <input type="text" name="email" required autocomplete="username"
                        value="<?= e($_POST['email'] ?? '') ?>"
-                       placeholder="votre@email.com"
+                       placeholder="votre@email.com ou 77 123 45 67"
                        class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-primary-500">
             </div>
 

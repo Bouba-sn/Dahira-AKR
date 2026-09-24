@@ -154,12 +154,12 @@ const Cart = {
   count() { return this.get().reduce((s, i) => s + i.qty, 0); },
   clear() { localStorage.removeItem('dahira_cart'); this.updateBadge(); },
   updateBadge() {
-    const badge = document.getElementById('cart-badge');
     const count = this.count();
-    if (badge) {
-      badge.textContent = count;
-      badge.style.display = count >0 ?'flex':'none';
-    }
+    const badges = document.querySelectorAll('#cart-badge, #cart-badge-desktop, .cart-badge');
+    badges.forEach(b => {
+      b.textContent = count;
+      b.style.display = count > 0 ? 'flex' : 'none';
+    });
   }
 };
 

@@ -18,6 +18,17 @@ if ($isUserLoggedIn && isset($_SESSION['user_nom'])) {
         $userInitials = strtoupper(mb_substr($userName, 0, 2));
     }
 }
+
+$unreadNotifsCount = 0;
+if ($isUserLoggedIn && function_exists('db')) {
+    try {
+        $stmtNotif = db()->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND lu = 0");
+        $stmtNotif->execute([(int)$_SESSION['user_id']]);
+        $unreadNotifsCount = (int)$stmtNotif->fetchColumn();
+    } catch (\Throwable $e) {
+        $unreadNotifsCount = 0;
+    }
+}
 ?>
 
 <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 border-t md:border-t-0 border-slate-200/80 dark:border-slate-800 transition-colors"
@@ -108,8 +119,48 @@ if ($isUserLoggedIn && isset($_SESSION['user_nom'])) {
 
         <!-- 3. ACTIONS PROFIL & SESSION (VISIBLE SUR DESKTOP) -->
         <div class="hidden md:flex items-center gap-2 shrink-0">
+            <!-- Bouton Mode Sombre -->
+            <button type="button" onclick="toggleDarkMode()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors cursor-pointer" title="Changer le thème">
+                <svg class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="w-4 h-4 block dark:hidden text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+
+            <!-- Bouton Panier Global -->
+            <a href="/pages/panier.php" class="relative w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors" title="Mon Panier">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" x2="21" y1="6" y2="6"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+                <span id="cart-badge-desktop" class="cart-badge absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full items-center justify-center hidden flex">0</span>
+            </a>
+
             <?php if ($isUserLoggedIn): ?>
-            <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1">
+            <!-- Cloche Notifications -->
+            <a href="/pages/notifications.php" class="relative w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors" title="Notifications">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <?php if ($unreadNotifsCount > 0): ?>
+                <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse"></span>
+                <?php endif; ?>
+            </a>
+
+            <!-- Profil connecté -->
+            <a href="<?= $isUserAdmin ? '/admin/dashboard.php' : '/pages/parametres.php' ?>" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1 transition-colors" title="Mon compte">
                 <div class="w-7 h-7 rounded-lg <?= $isUserAdmin ? 'bg-gradient-to-br from-gold-500 to-amber-600 text-slate-950' : 'bg-gradient-to-br from-primary-700 to-blue-900 text-white' ?> font-black text-xs flex items-center justify-center shadow-xs">
                     <?= e($userInitials) ?>
                 </div>
@@ -117,7 +168,7 @@ if ($isUserLoggedIn && isset($_SESSION['user_nom'])) {
                     <p class="text-xs font-semibold text-slate-900 dark:text-white max-w-[110px] truncate"><?= e($userName) ?></p>
                     <p class="text-[10px] <?= $isUserAdmin ? 'text-gold-600 dark:text-gold-400 font-bold' : 'text-slate-400' ?>"><?= $isUserAdmin ? 'Administrateur' : 'Membre' ?></p>
                 </div>
-            </div>
+            </a>
             <a href="/public/logout.php" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 dark:bg-slate-800 dark:hover:bg-rose-950/40 dark:text-slate-400 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors" title="Se déconnecter">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
             </a>

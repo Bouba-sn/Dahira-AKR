@@ -190,6 +190,10 @@ $bodyClass = $darkMode ? 'dark' : '';
                 padding-top: 64px !important;
                 padding-bottom: 0 !important;
             }
+            /* Sur desktop, les barres d'en-tête internes ne doivent pas coller sous la navbar fixe */
+            .sticky.top-0 {
+                position: static !important;
+            }
         }
 
 /* App container - scrollable within fixed viewport */

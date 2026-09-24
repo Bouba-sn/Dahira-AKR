@@ -18,8 +18,8 @@ $evenements = $stmt->fetchAll();
 $dahira = $pdo->query("SELECT * FROM evenements WHERE type='dahira_samedi'AND date_evenement >= NOW() ORDER BY date_evenement ASC LIMIT 1")->fetch();
 ?>
 
-<!-- TOP BAR -->
-<div class="sticky top-0 z-40 bg-primary-900 text-white px-4 flex items-center justify-between" style="height: calc(3.5rem + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px);">
+<!-- TOP BAR (VISIBLE SUR MOBILE UNIQUEMENT, SUR DESKTOP LA NAVBAR PRINCIPALE PREND LE RELAIS) -->
+<div class="sticky top-0 z-40 bg-primary-900 text-white px-4 flex items-center justify-between md:hidden" style="height: calc(3.5rem + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px);">
     <!-- Logo + Titre (Gauche) -->
     <div class="flex items-center gap-3">
       <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden shrink-0 logo-container">

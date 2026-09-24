@@ -6,7 +6,7 @@ Options -Indexes
     # Autoriser par défaut
 </Files>
 
-<FilesMatch "^(database\.php|\.env|schema\.sql|run_migration.*\.php|generate_.*\.php)$">
+<FilesMatch "^(database\.php|\.env|.*\.sql|run_migration.*\.php|generate_.*\.php)$">
     Require all denied
 </FilesMatch>
 

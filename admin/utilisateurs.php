@@ -21,21 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_role']) && ver
     }
 }
 
-// Basculer statut carte physique
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_carte_physique']) && verifyCsrfToken($_POST['csrf_token'] ?? '')) {
-    $uid = (int)$_POST['toggle_carte_physique'];
-    $cur = $pdo->prepare("SELECT carte_physique FROM utilisateurs WHERE id=?");
-    $cur->execute([$uid]);
-    $isPhysique = (int)$cur->fetchColumn();
-    $newVal = $isPhysique ? 0 : 1;
-    if ($newVal === 1) {
-        $pdo->prepare("UPDATE utilisateurs SET carte_physique = 1, statut_adhesion = 'membre' WHERE id=?")->execute([$uid]);
-        $msg = 'Membre enregistré comme détenteur d\'une carte physique (Adhésion validée).';
-    } else {
-        $pdo->prepare("UPDATE utilisateurs SET carte_physique = 0 WHERE id=?")->execute([$uid]);
-        $msg = 'Statut carte physique retiré.';
-    }
-}
+
 
 // Supprimer
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id']) && verifyCsrfToken($_POST['csrf_token'] ?? '')) {
@@ -141,15 +127,7 @@ $membres = $stmt->fetchAll();
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
             </button>
 
-            <!-- Basculer carte physique -->
-            <form method="POST" class="inline">
-                <?= csrfField() ?>
-                <input type="hidden" name="toggle_carte_physique" value="<?= $m['id'] ?>">
-                <button type="submit" title="<?= !empty($m['carte_physique']) ? 'Retirer le statut carte physique' : 'Valider / Attribuer carte physique' ?>"
-                   class="w-7 h-7 rounded-lg <?= !empty($m['carte_physique']) ? 'bg-teal-600 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300' ?> flex items-center justify-center text-xs transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3" ry="3"/><circle cx="9" cy="10" r="2"/><line x1="15" y1="8" x2="17" y2="8"/><line x1="7" y1="15" x2="17" y2="15"/></svg>
-                </button>
-            </form>
+
 
             <?php if ($m['id'] != $_SESSION['user_id']): ?>
             <form method="POST" class="inline">

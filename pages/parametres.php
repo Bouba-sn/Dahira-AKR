@@ -595,57 +595,7 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         </div>
 
-        <!-- GROUPE 4: ESPACE ADMINISTRATEUR (si Admin) -->
-        <?php if ($user && $user['role'] === 'admin'): ?>
-        <div>
-            <p class="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider px-2 mb-2 flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                Administration Dahira
-            </p>
-            <div class="bg-gradient-to-r from-amber-500/5 via-amber-500/10 to-transparent dark:from-amber-950/20 rounded-2xl border border-amber-300/70 dark:border-amber-700/50 shadow-xs divide-y divide-amber-200/50 dark:divide-amber-800/40 overflow-hidden">
-                
-                <a href="/admin/dashboard.php" class="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-amber-500/10 transition-colors active:scale-[0.99]">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0 font-bold">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-slate-900 dark:text-slate-100">Tableau de Bord Général</p>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Validations, adhésions en attente & finances</p>
-                        </div>
-                    </div>
-                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-                </a>
 
-                <a href="/admin/cotisations.php" class="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-amber-500/10 transition-colors active:scale-[0.99]">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-slate-900 dark:text-slate-100">Gestion des Cotisations</p>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Enregistrer les versements et bilans financiers</p>
-                        </div>
-                    </div>
-                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-                </a>
-
-                <a href="/admin/utilisateurs.php" class="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-amber-500/10 transition-colors active:scale-[0.99]">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-slate-900 dark:text-slate-100">Membres & Cartes Physiques</p>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Valider les adhésions et attribuer les rôles</p>
-                        </div>
-                    </div>
-                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-                </a>
-
-            </div>
-        </div>
-        <?php endif; ?>
 
         <!-- GROUPE 5: SÉCURITÉ & COMPTE -->
         <div>

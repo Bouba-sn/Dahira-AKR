@@ -233,9 +233,9 @@ $allUsersForSelect = $isCurrentUserAdmin
     ? $pdo->query("SELECT id, nom, prenom, telephone, categorie_membre FROM utilisateurs ORDER BY nom ASC")->fetchAll() 
     : [];
 
-// Pour un membre connecté non-admin : chargement de sa situation personnelle pour son bandeau récapitulatif
+// Chargement de la situation personnelle du membre/administrateur connecté pour son bandeau récapitulatif
 $mySituation = null;
-if (!$isCurrentUserAdmin && $currentUserId > 0) {
+if ($currentUserId > 0) {
     $myDetail = $campagneId > 0 ? $cotisationService->getMemberDetail($currentUserId, $campagneId) : null;
     if ($myDetail) {
         $mySit = $myDetail['situation'] ?? [];
@@ -332,7 +332,7 @@ if (!$isCurrentUserAdmin && $currentUserId > 0) {
     </div>
     <?php endif; ?>
 
-    <?php if (!$isCurrentUserAdmin && $mySituation): ?>
+    <?php if ($mySituation): ?>
     <!-- MA SITUATION PERSONNELLE RAPIDE -->
     <div class="mb-4 bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs fade-in-up">
         <div class="flex items-center justify-between gap-2 mb-3">

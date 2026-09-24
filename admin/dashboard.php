@@ -3,13 +3,22 @@
 $pageTitle = 'Tableau de Bord - Administration';
 require_once __DIR__ . '/../includes/auth.php';
 requireAdmin();
-require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Services\CotisationService;
 
 $pdo = db();
 $currentUser = getCurrentUser();
+
+// Service Cotisation & Campagne Active
+$cotisationService = new CotisationService($pdo);
+$campagneActive = $cotisationService->getActiveCampagne();
+$campagneStats = null;
+if ($campagneActive) {
+    $campagneStats = $cotisationService->getGlobalStats((int)$campagneActive['id']);
+}
+require_once __DIR__ . '/../includes/header.php';
 
 // 1. Infos de l'administrateur connecté
 $adminInfo = null;
@@ -52,14 +61,6 @@ $stats = [
     'stock_faible'     => (int)$pdo->query("SELECT COUNT(*) FROM produits WHERE actif=1 AND stock <= 5")->fetchColumn(),
     'evenements'       => (int)$pdo->query("SELECT COUNT(*) FROM evenements")->fetchColumn(),
 ];
-
-// 4. Stats Cotisations via le service dédié
-$cotisationService = new CotisationService($pdo);
-$campagneActive = $cotisationService->getActiveCampagne();
-$campagneStats = null;
-if ($campagneActive) {
-    $campagneStats = $cotisationService->getGlobalStats((int)$campagneActive['id']);
-}
 
 // 5. Adhésions en attente
 $adhesions = $pdo->query("SELECT * FROM utilisateurs WHERE statut_adhesion = 'en_attente' ORDER BY id DESC")->fetchAll();
@@ -191,6 +192,8 @@ try {
             </div>
         </div>
         <?php endif; ?>
+
+
 
         <!-- GRILLE DE STATISTIQUES & INDICATEURS CLÉS (KPI) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
@@ -612,5 +615,7 @@ try {
 
     </div>
 </main>
+
+
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
